@@ -1,0 +1,9 @@
+# Belt and braces: nothing in this folder may be served over the web.
+# It contains the admin login password hash and the site's content files.
+<IfModule mod_authz_core.c>
+  Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+  Order allow,deny
+  Deny from all
+</IfModule>

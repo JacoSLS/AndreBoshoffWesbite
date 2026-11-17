@@ -1,0 +1,7 @@
+# Never commit live or secret files
+site/data/sessions/
+site/data/auth.json
+site/data/rate-limits.json
+site/data/*.lock
+site/includes/mail-local.php
+*.zip

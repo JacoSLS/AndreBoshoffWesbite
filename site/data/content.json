@@ -1,0 +1,328 @@
+{
+    "header": {
+        "logo": "img/logo.png",
+        "logo_white": "img/logo-white.png",
+        "topbar_note": "Mon–Fri 7am–5pm · 24/7 Emergencies",
+        "show_topbar": true,
+        "show_header_cta": true,
+        "nav": [
+            {
+                "slug": "index",
+                "label": "Home",
+                "show": true
+            },
+            {
+                "slug": "about",
+                "label": "About Us",
+                "show": true
+            },
+            {
+                "slug": "services",
+                "label": "Services",
+                "show": true
+            },
+            {
+                "slug": "gallery",
+                "label": "Gallery",
+                "show": true
+            },
+            {
+                "slug": "reviews",
+                "label": "Reviews",
+                "show": true
+            },
+            {
+                "slug": "contact",
+                "label": "Contact Us",
+                "show": true
+            }
+        ]
+    },
+    "footer": {
+        "tagline": "Pure Water. Reliable Service. Solutions you can Trust.",
+        "about_text": "Well and Water specialists based in Freeland, Maryland, looking after Homeowners since 2025.",
+        "col_pages": "Pages",
+        "col_services": "Services",
+        "col_contact": "Get in touch",
+        "copyright": "All rights reserved.",
+        "show_staff_login": true,
+        "band_show": true,
+        "band_heading": "No Water? Call Now — We Answer Around The Clock.",
+        "callbar_show": true
+    },
+    "home": {
+        "meta_title": "Well Pumps & Water Treatment in Baltimore, Harford & Carroll Counties",
+        "meta_desc": "Freeland Well and Water Services is a owner-operated company, providing water treatment, well pump system and plumbing services. We are located in Maryland, serving Baltimore County, Harford County, Carroll County and surrounding areas.",
+        "hero": {
+            "eyebrow": "Pure water. Reliable service.",
+            "heading": "Well and water services you can trust.",
+            "text": "At Freeland Well and Water services, we're dedicated to providing reliable, professional water and plumbing solutions for your home or business.  From WELL PUMPS and WATER TESTING to WATER TREATMENT, PLUMBING, and emergency services, we take the time to understand your needs and explain your options before we begin.  As a family-owned, owner operated business, we believe in fair pricing, dependable service, and doing the job right the firs time.  Your water is important to us and we're here to help keep it safe, clean and reliable.",
+            "points": [
+                "Serving Baltimore County, Harford County and Carroll County in Maryland",
+                "24/7 EMERGENCY SERVICE",
+                "Owner-operated",
+                "Licensed and Insured"
+            ],
+            "cta_secondary": "SERVICES",
+            "image": "img/hero.jpg",
+            "badge_show": false,
+            "badge_title": "Since 2025",
+            "badge_text": "We are a licensed and insured family owned and operated business in Maryland that see to all your water needs."
+        },
+        "trust": {
+            "show": true,
+            "items": [
+                {
+                    "title": "24/7 Emergency Services",
+                    "text": "NO EMERGENCY FEES. Emergencies happen when you least expect them and they shouldn't cost you extra."
+                },
+                {
+                    "title": "Licensed and Insured",
+                    "text": "Have confidence knowing your service is handled by a licensed and insured professional, giving you greater peace of mind."
+                },
+                {
+                    "title": "Owner-operated",
+                    "text": "You're not just another customer.  We take pride in providing personal service, building lasting relationships, and treating your home with care."
+                },
+                {
+                    "title": "Quality work you can Trust",
+                    "text": "Our client's satisfaction is our priority. Professional work and service you can feel confident in."
+                }
+            ]
+        },
+        "services_section": {
+            "show": true,
+            "eyebrow": "What we do",
+            "heading": "Everything from the Well pump to the Faucet.",
+            "text": "Every part of your water system under one roof. Well Pumps, Well tank replacement, Water Heater replacement, Water Testing, Water Treatment Services, Plumbing and Gas fitting services.",
+            "link_label": "Read more",
+            "icons": true,
+            "order": "services_first"
+        },
+        "why": {
+            "show": true,
+            "eyebrow": "Why Homeowners Call Us Back",
+            "heading": "Your Satisfaction Is Our Priority",
+            "body": "",
+            "points": [
+                {
+                    "strong": "Complete Water & Home Solutions",
+                    "text": "From well pumps and water treatment to  plumbing and gas fitting, we manage all your essential water systems under one roof."
+                },
+                {
+                    "strong": "Quick & Reliable Response",
+                    "text": "We respect your time. Punctuality is our promise and you can count on us to show up when you need us."
+                },
+                {
+                    "strong": "Fair, Honest and Upfront Pricing",
+                    "text": "We believe in straightforward pricing and ensure you understand all your options before any work begins."
+                },
+                {
+                    "strong": "Clear Explanations & Personal Services",
+                    "text": "We clearly explain the problem, give honest recommendations and make sure you are completely satisfied with the results."
+                }
+            ],
+            "cta_label": "More about us",
+            "image": "uploads/20261011-191216-58888f.jpg"
+        },
+        "area": {
+            "show": true,
+            "eyebrow": "Where We Work",
+            "heading": "Proudly Serving Maryland and Surrounding Areas",
+            "text": "Dedicated to keeping our MD an PA neighborhoods thriving.",
+            "extra_tag": "Freeland & Surrounds"
+        },
+        "stats": {
+            "show": true,
+            "items": [
+                {
+                    "value": "7",
+                    "label": "Services under one roof"
+                },
+                {
+                    "value": "3",
+                    "label": "Maryland counties covered"
+                },
+                {
+                    "value": "24/7",
+                    "label": "Emergency availability"
+                }
+            ]
+        },
+        "banner": {
+            "image": "img/hero-banner.jpg",
+            "image_mobile": "",
+            "alt": "",
+            "heading": ""
+        }
+    },
+    "about": {
+        "meta_title": "About Us",
+        "meta_desc": "Looking for reliable well pump, plumbing, or water treatment services? Freeland Well and Water Services is a family-owned, owner-operated business providing well pump replacement, well water testing, water treatment systems, plumbing, gas fitting, and well pressure tank replacement. We offer 24/7 emergency services with no additional emergency fees. Call us for dependable service, fair pricing, and quality workmanship you can trust.",
+        "hero": {
+            "eyebrow": "About Us",
+            "heading": "We Are Here To Make a Difference",
+            "text": "Freeland Well and Water Services looks after homeowners across Baltimore County, Harford County and Carroll County in Maryland."
+        },
+        "story": {
+            "show": true,
+            "eyebrow": "Our Story",
+            "heading": "Reliable Well and Water Services in Maryland",
+            "body": "At Freeland Well and Water Services we are a family-owned and owner-operated business dedicated to providing reliable Well, Plumbing and Gasfitting services you can trust.  Led by Andre Boshoff, a Master plumber, we take pride in delivering quality workmanship and honest advice.\r\n\r\nWe understand how important  dependable water and plumbing systems are to your home, which is why we focus on finding the right solution for every customer.  We believe in explaining the work that needs to be done, answering your Questions and making sure you understand  your options before we begin. We are committed to providing professional services with a personal touch and get it right the first time.\r\n\r\nAt Freeland Well and Water Services you are more than just a Customer - you are part of our community.",
+            "image": "uploads/20261021-203539-7993d1.jpg"
+        },
+        "values": {
+            "show": false,
+            "eyebrow": "How We Work",
+            "heading": "Four Things We Will Not Compromise On",
+            "items": [
+                {
+                    "title": "We only fix the problem",
+                    "text": "If the cheap repair is the right repair, that is the one you get quoted. We would rather have you call us again in five years than never again in one.",
+                    "icon": "checkc"
+                },
+                {
+                    "title": "Evidence before treatment",
+                    "text": "Water gets tested before anything gets sold. Staining, smell and taste each point somewhere different, and guessing costs you money.",
+                    "icon": "flask"
+                },
+                {
+                    "title": "Fair, stated prices",
+                    "text": "You know what the work costs before it starts. If something unexpected turns up mid-job, we stop and talk to you rather than adding it to the bill.",
+                    "icon": "star"
+                },
+                {
+                    "title": "We turn up",
+                    "text": "Booked times are kept. And when a pump dies at eleven at night, the emergency line is answered by someone who can actually help.",
+                    "icon": "clock"
+                }
+            ]
+        },
+        "who": {
+            "show": false,
+            "eyebrow": "Who we help",
+            "heading": "Homeowners with any Water related Issue",
+            "body": "Our customers are households who rely on their own well rather than a municipal supply. That comes with a particular set of headaches: no water at all, water that stains everything it touches, water that smells wrong, pressure that surges and drops, and pumps that fail at the worst possible moment.\r\n\r\nWe handle all of it, plus the general plumbing that inevitably sits alongside it. One number to call, whichever part of the system has let you down.",
+            "points": [
+                "No water, or water that has slowed to a trickle",
+                "Orange staining, metallic taste, or a sulphur smell",
+                "Pressure that surges, drops, or cycles constantly",
+                "Buying or selling a property and needing the well tested"
+            ],
+            "image": ""
+        }
+    },
+    "services_page": {
+        "meta_title": "Our Services",
+        "meta_desc": "Well pump replacement, tank replacement, yield testing, water testing, water treatment and plumbing across Baltimore, Harford and Carroll counties, Maryland.",
+        "hero": {
+            "eyebrow": "What We Do",
+            "heading": "Our Services",
+            "text": "Everything from replacing a failed pump to tracing a leak under the kitchen floor."
+        },
+        "cards_show": true,
+        "detail": {
+            "show": true,
+            "eyebrow": "In detail",
+            "heading": "What each service actually involves",
+            "text": "If you are not sure which of these you need, call and describe what the water is doing. That is usually enough for us to point you in the right direction over the phone.",
+            "cta_label": "Call about this"
+        },
+        "symptoms": {
+            "show": false,
+            "eyebrow": "Not sure what you need?",
+            "heading": "Describe the symptom, we will name the cause",
+            "text": "Most water problems announce themselves in a fairly specific way. Here is the usual translation.",
+            "items": [
+                {
+                    "title": "Orange or brown staining",
+                    "text": "Almost always iron. Confirmed with a water test, then handled with the right filter rather than a general-purpose one."
+                },
+                {
+                    "title": "Rotten egg smell",
+                    "text": "Sulphur, or bacteria in the well. The fix differs completely depending on which — so it gets tested first."
+                },
+                {
+                    "title": "Pump running constantly",
+                    "text": "Usually a waterlogged pressure tank. Left alone it will take your pump with it, so it is worth looking at early."
+                },
+                {
+                    "title": "Water runs out in summer",
+                    "text": "A yield test tells you whether the well is genuinely under-producing or something else is limiting the flow."
+                },
+                {
+                    "title": "Green stains on fixtures",
+                    "text": "Acidic water attacking copper pipe. A neutraliser stops it before you are replacing plumbing."
+                },
+                {
+                    "title": "No water at all",
+                    "text": "Pump, pressure switch, wiring or the well itself. This is an emergency call — ring us whatever the hour."
+                }
+            ]
+        }
+    },
+    "gallery_page": {
+        "meta_title": "Our Work",
+        "meta_desc": "Photos of well pump replacements, well tank replacements, water treatment systems and plumbing work completed across Maryland.",
+        "hero": {
+            "eyebrow": "Our work",
+            "heading": "Recent jobs",
+            "text": "Click any job to see every photo and what was done."
+        },
+        "show_filters": true,
+        "all_label": "All work",
+        "empty_heading": "Nothing in this category yet",
+        "empty_text": "Pick another category above, or view all work."
+    },
+    "contact_page": {
+        "meta_title": "Contact Us",
+        "meta_desc": "Call us or send a message. Serving Baltimore, Harford and Carroll counties in Maryland, with 24/7 Emergency call-outs.",
+        "hero": {
+            "eyebrow": "Get in touch",
+            "heading": "Talk to us",
+            "text": "The quickest way to get help is to pick up the phone — especially if you have no water. For anything less urgent, send a message and we will come back to you."
+        },
+        "details_heading": "Contact details",
+        "hours_heading": "Business Hours",
+        "emergency_label": "Emergencies, any hour.",
+        "show_form": true,
+        "form_heading": "Send a message",
+        "form_intro": "",
+        "form_note": "Your message goes straight to us. We do not share your details with anyone, and we will not add you to a mailing list.",
+        "form_success": "Thank you — your message is on its way. We will get back to you as soon as possible.",
+        "labels": {
+            "name": "Your name",
+            "phone": "Phone number",
+            "email": "Email address",
+            "service": "What do you need help with?",
+            "message": "Tell us what is happening",
+            "submit": "Send message"
+        },
+        "message_placeholder": "For example: the water has slowed to a trickle over the last week and the pump seems to be running constantly."
+    },
+    "reviews_page": {
+        "meta_title": "",
+        "meta_desc": "What our Customers say about us.",
+        "hero": {
+            "eyebrow": "",
+            "heading": "",
+            "text": ""
+        },
+        "layout": "grid",
+        "items": [
+            {
+                "quote": "Andre is the Hero in our house for fixing an old broken faucet, no other plumber could fix.",
+                "name": "Anonymous"
+            },
+            {
+                "quote": "At 7:50 pm on Sunday night, I texted Andre.  We spoke on the phone and he was at my house in 15 minutes. Ran a few tests, and diagnosed the problem.  He'll take care of you!! Thank you Andre.",
+                "name": "D. Miller"
+            },
+            {
+                "quote": "We feel very grateful to have been introduced to Andre and the team at Freeland Well & Water Services in Freeland.  This family operated business is immediately responsive, they do the work correctly and efficiently the first time and welcome questions and offer support after the job is done. Very Highly recommended.",
+                "name": "A. Tyrrell"
+            }
+        ],
+        "trim_chars": "30"
+    }
+}
