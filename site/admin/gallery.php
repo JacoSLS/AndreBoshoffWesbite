@@ -22,6 +22,7 @@ function bww_take_photos(array $field): array {
         ];
         if ($one['error'] === UPLOAD_ERR_NO_FILE) continue;
         $res = bww_handle_upload($one, 'photo');
+        if ($res['ok']) bww_new_upload('uploads/' . $res['file']);
         if ($res['ok']) $out['photos'][] = ['file' => $res['file'], 'thumb' => $res['thumb']];
         else $out['errors'][] = $one['name'] . ': ' . $res['error'];
     }
@@ -57,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'photos'   => $taken['photos'],
             'added'    => date('c'),
         ]);
-        bww_write('gallery', $posts);
+        if (!bww_save('gallery', $posts)) { header('Location: gallery.php'); exit; }
         $n = count($taken['photos']);
         bww_flash('Job added with ' . $n . ' photo' . ($n === 1 ? '' : 's') . '. <a href="../gallery.php" target="_blank" rel="noopener">See it on your website</a>.'
             . ($taken['errors'] ? '<br>Some files were skipped: ' . implode('; ', array_map('e', $taken['errors'])) : ''), 'ok');
@@ -75,24 +76,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $p['body']     = trim($_POST['body'] ?? '');
             $p['category'] = trim($_POST['category'] ?? 'general');
 
-            // remove any photos that were ticked
-            $drop = (array)($_POST['drop'] ?? []);
-            if ($drop) {
-                $keep = [];
-                foreach ($p['photos'] as $k => $ph) {
-                    if (in_array((string)$k, array_map('strval', $drop), true)) { bww_delete_photos([$ph]); continue; }
-                    $keep[] = $ph;
-                }
-                $p['photos'] = $keep;
+            // the chosen cover, looked up before any photos are removed (the numbers refer to the list as shown)
+            $cover = (string)($_POST['cover'] ?? '');
+            $coverPhoto = ($cover !== '' && ctype_digit($cover)) ? ($p['photos'][(int)$cover] ?? null) : null;
+            // remove any photos that were ticked (their files go once the save succeeds)
+            $drop = array_map('strval', (array)($_POST['drop'] ?? []));
+            $keep = [];
+            foreach ($p['photos'] as $k => $ph) {
+                if (in_array((string)$k, $drop, true)) { bww_delete_later('uploads/' . basename($ph['file'] ?? '')); continue; }
+                $keep[] = $ph;
             }
-            // make one of them the cover
-            $cover = $_POST['cover'] ?? '';
-            if ($cover !== '' && isset($p['photos'][(int)$cover]) && (int)$cover > 0) {
-                $ph = $p['photos'][(int)$cover];
-                unset($p['photos'][(int)$cover]);
-                array_unshift($p['photos'], $ph);
-                $p['photos'] = array_values($p['photos']);
+            // make the chosen one the cover, if it was not removed
+            if ($coverPhoto !== null && in_array($coverPhoto, $keep, true)) {
+                $keep = array_values(array_filter($keep, fn($ph) => $ph !== $coverPhoto));
+                array_unshift($keep, $coverPhoto);
             }
+            $p['photos'] = $keep;
             // add new ones
             $taken = bww_take_photos($_FILES['photos'] ?? []);
             if ($taken['photos']) {
@@ -104,8 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             break;
         }
         unset($p);
-        bww_write('gallery', $posts);
-        bww_flash($msg, 'ok');
+        if (bww_save('gallery', $posts)) bww_flash($msg, 'ok');
         header('Location: gallery.php?edit=' . urlencode($id)); exit;
     }
 
@@ -114,11 +112,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $id = $_POST['id'] ?? '';
         $kept = [];
         foreach ($posts as $p) {
-            if (($p['id'] ?? '') === $id) { bww_delete_photos($p['photos'] ?? []); continue; }
+            if (($p['id'] ?? '') === $id) {
+                foreach ($p['photos'] ?? [] as $ph) bww_delete_later('uploads/' . basename($ph['file'] ?? ''));
+                continue;
+            }
             $kept[] = $p;
         }
-        bww_write('gallery', $kept);
-        bww_flash('Job deleted, along with its photos.', 'ok');
+        if (bww_save('gallery', $kept)) bww_flash('Job deleted, along with its photos.', 'ok');
         header('Location: gallery.php'); exit;
     }
 
@@ -131,7 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $j = $i + $dir;
             if ($j >= 0 && $j < count($posts)) {
                 [$posts[$i], $posts[$j]] = [$posts[$j], $posts[$i]];
-                bww_write('gallery', $posts);
+                bww_save('gallery', $posts);
             }
             break;
         }
@@ -148,8 +148,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         foreach (['eyebrow', 'heading', 'text'] as $k) $gp['hero'][$k] = trim($_POST['hero'][$k] ?? '');
         $gp['show_filters'] = !empty($_POST['g']['show_filters']);
         $all['gallery_page'] = $gp;
-        bww_write('content', $all);
-        bww_flash('Saved.', 'ok');
+        if (bww_save('content', $all)) bww_flash('Saved.', 'ok');
         header('Location: gallery.php'); exit;
     }
 }

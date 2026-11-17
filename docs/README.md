@@ -15,7 +15,7 @@ step. Upload the folder and it runs.
                        legal.json, auth.json      (never served directly)
 /assets/css            style.css — one stylesheet, brand tokens at the top
 /assets/js             main.js — nav, lightbox, gallery filter. No frameworks.
-/assets/img            logo variants, favicons, placeholder SVGs
+/assets/img            logo variants, favicons, banner, og-image.jpg (sharing picture)
 /assets/uploads        where Andre's uploaded photos land   ← must be writable
 /admin                 the staff login and admin panel
 .htaccess              clean URLs, security headers, protects /data and /includes
@@ -54,11 +54,15 @@ sometimes older than 8.1).
 
 ## 3. Installing it
 
-1. Upload everything to `public_html` (or a subfolder / subdomain for a demo).
+1. Upload everything to the root of `public_html`. The site only works at the root
+   of a domain, and `.htaccess` sends every visitor to www.freelandwellandwater.com,
+   so it cannot run as a subfolder or demo copy without editing those rules.
 2. Set permissions: folders `755`, files `644`. Confirm `/data` and `/assets/uploads`
    are writable — most cPanel hosts are fine at 755, a few need 775.
-3. There is no built-in password. Sign-in only works once `data/auth.json` exists
-   (the live site already has one; a fresh install needs it set up first).
+3. There is no built-in password. On a fresh install, create an empty file
+   `data/setup-allowed` in File Manager, then open `/admin/`: it asks you to choose the
+   username and password, saves them (hashed) in `data/auth.json` and deletes
+   `setup-allowed`. Without that file nobody can set up a login.
 4. Change the password any time under *Contact & Settings → Your login*.
 5. Under *Contact & Settings*, set the **Website address** field to the real domain.
 
@@ -78,21 +82,21 @@ location /assets/uploads/ { location ~ \.php$ { return 403; } }
 
 ## 4. The contact form
 
-Out of the box it uses PHP's `mail()`. That works on many hosts, but mail sent to a
-Gmail address from a server whose domain does not match the From address is often
-filed as spam or dropped.
+Out of the box it uses PHP's `mail()`, sending from andre@freelandwellandwater.com (a
+real mailbox on the site's own domain), which works on Namecheap. The settings are in
+`/includes/mail-config.php`.
 
-**For anything beyond a demo, switch it to SMTP.** Edit `/includes/mail-config.php`:
+**To switch to SMTP**, never put the password in `mail-config.php`. Instead create
+`/includes/mail-local.php` on the server. It is not in the website zip, so updates
+never overwrite it, and it replaces any matching setting in `mail-config.php`:
 
 ```php
-'smtp_enabled' => true,
-'host'       => 'mail.yourdomain.com',
-'port'       => 587,
-'secure'     => 'tls',
-'username'   => 'website@yourdomain.com',
-'password'   => '••••••',
-'from_email' => 'website@yourdomain.com',
+<?php return ['smtp_enabled' => true, 'password' => 'the mailbox password'];
 ```
+
+The site refuses to send an SMTP login over an unencrypted connection (`secure` must
+be `ssl` or `tls`). If a message cannot be sent, the visitor is asked to phone instead
+and the reason is written to the server's error log.
 
 Two rules that decide whether enquiries arrive:
 
@@ -140,8 +144,8 @@ a job opens the full view: every photo with previous/next and thumbnails, plus t
 longer write-up.
 
 The site ships with Andre's real job photos loaded as six jobs. If the gallery is ever
-emptied, the public page falls back to labelled placeholders with a note saying they
-are stand-ins.
+emptied, the public page shows a short "new job photos are on their way" note with a
+link to the contact page.
 
 Each service also has a **short label** (e.g. "Well Pumps") used on the gallery filter
 buttons and photo badges, because the full service name does not fit in a pill. It is
@@ -187,8 +191,9 @@ the site being slow.
   named *Well Pump Installation and Replacement*, matching his truck lettering.
 - **Brand tokens** are the CSS variables at the top of `style.css`. Change the two
   brand colours in one place and the whole site follows.
-- **Clean URLs** come from `.htaccess`. If you host somewhere without mod_rewrite the
-  `.php` extensions still work — nothing breaks, the addresses are just uglier.
+- **Clean URLs** come from `.htaccess` and need Apache's mod_rewrite (with
+  `AllowOverride All`). Links and the contact form use the clean addresses, so the
+  site does not work properly without it.
 - **The legal pages are drafts.** They are written to match how the site actually
   behaves, but they say plainly at the top that they need an attorney's eye. Do not
   let them go live unreviewed if the client starts taking payments.

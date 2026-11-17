@@ -5,3 +5,5 @@ site/data/rate-limits.json
 site/data/*.lock
 site/includes/mail-local.php
 *.zip
+site/data/setup-allowed
+site/data/*.tmp

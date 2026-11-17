@@ -40,7 +40,7 @@ function bww_run_editor(string $section, array $groups, array $opts): void {
         unset($_SESSION['bww_preview']);
 
         $all[$section] = $data;
-        bww_write('content', $all);
+        if (!bww_save('content', $all)) { header('Location: ' . $self); exit; }
 
         $errs = $GLOBALS['BWW_FIELD_ERRORS'];
         bww_flash($errs

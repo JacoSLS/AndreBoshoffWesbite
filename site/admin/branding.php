@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $all['header'] = $header;
     $all['footer'] = $footer;
-    bww_write('content', $all);
+    if (!bww_save('content', $all)) { header('Location: branding.php'); exit; }
 
     $errs = $GLOBALS['BWW_FIELD_ERRORS'];
     bww_flash($errs ? 'Saved, but a logo did not upload:<br>' . implode('<br>', array_map('e', $errs))

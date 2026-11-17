@@ -59,7 +59,8 @@ if (shown('home.services_section.show') && $services): ?>
         <?php endif; ?>
         <h3><?= e($sv['name']) ?></h3>
         <p><?= e($sv['short'] ?? '') ?></p>
-        <a class="card__link" href="<?= e(page_url('services', (shown('services_page.cards_show') ? 'card-' : '') . $sv['id'])) ?>">Details <?= icon('arrow') ?></a>
+        <a class="card__link" href="<?= e(shown('services_page.cards_show') ? page_url('services', 'card-' . $sv['id'])
+                                         : (shown('services_page.detail.show') ? page_url('services', $sv['id']) : page_url('services'))) ?>">Details <?= icon('arrow') ?></a>
       </article>
       <?php endforeach; ?>
     </div>
@@ -89,7 +90,7 @@ ob_start(); ?>
         <?php endif; ?>
       </div>
       <?php if (asset(c('home.why.image'))): ?>
-      <div><img src="<?= e(asset(c('home.why.image'))) ?>"<?= img_size(asset(c('home.why.image'))) ?> alt="" style="border-radius:10px" loading="lazy"></div>
+      <div><?= bww_content_img(asset(c('home.why.image')), c('home.why.image_alt') ?: c('home.why.heading')) ?></div>
       <?php endif; ?>
     </div>
   </div>

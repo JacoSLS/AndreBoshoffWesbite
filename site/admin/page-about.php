@@ -27,6 +27,8 @@ bww_run_editor('about', [
       ['key' => 'heading', 'label' => 'Heading', 'max' => 140],
       ['key' => 'body',    'label' => 'Your story', 'type' => 'textarea', 'rows' => 10],
       ['key' => 'image',   'label' => 'Photo', 'type' => 'image'],
+      ['key' => 'image_alt', 'label' => 'What the photo shows', 'max' => 160,
+       'hint' => 'One short sentence, read aloud to visitors who cannot see the photo and used by Google. Leave empty to use the heading.'],
     ],
   ],
   [
@@ -53,6 +55,8 @@ bww_run_editor('about', [
       ['key' => 'body',    'label' => 'Paragraphs', 'type' => 'textarea', 'rows' => 7],
       ['key' => 'points',  'label' => 'Tick list', 'type' => 'list', 'placeholder' => 'e.g. No water, or water that has slowed to a trickle'],
       ['key' => 'image',   'label' => 'Photo', 'type' => 'image'],
+      ['key' => 'image_alt', 'label' => 'What the photo shows', 'max' => 160,
+       'hint' => 'One short sentence, read aloud to visitors who cannot see the photo and used by Google. Leave empty to use the heading.'],
     ],
   ],
 ], [

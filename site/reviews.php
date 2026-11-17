@@ -28,7 +28,7 @@ $eyebrow = c('reviews_page.hero.eyebrow') ?: 'Customer Testimonials';
       <?php foreach ($reviews as $r):
         $q = trim($r['quote']);
         $short = '';
-        if ($trim && mb_strlen($q) > $trim) {
+        if ($trim && function_exists('mb_strlen') && mb_strlen($q) > $trim) {   // without mbstring, show the whole review
             $short = mb_substr(preg_replace('/\s+/u', ' ', $q), 0, $trim);
             $sp = mb_strrpos($short, ' ');
             if ($sp !== false && $sp >= $trim / 2) $short = mb_substr($short, 0, $sp);   // end on a whole word

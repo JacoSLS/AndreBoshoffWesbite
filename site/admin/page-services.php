@@ -56,7 +56,8 @@ function bww_services_page_from_post(array $sp): array {
 function bww_service_text_from_post(array $sv): array {
     $sv['name']    = trim($_POST['name'] ?? '') ?: ($sv['name'] ?? '');
     $sv['tag']     = trim($_POST['tag'] ?? '') ?: $sv['name'];
-    $sv['icon']    = $_POST['icon'] ?? ($sv['icon'] ?? 'drop');
+    $icon          = (string)($_POST['icon'] ?? '');
+    $sv['icon']    = array_key_exists($icon, bww_icon_choices()) ? $icon : ($sv['icon'] ?? 'drop');
     $sv['short']   = trim($_POST['short'] ?? '');
     $sv['body']    = trim($_POST['body'] ?? '');
     $sv['bullets'] = array_slice(array_values(array_filter(array_map('trim', (array)($_POST['bullets'] ?? [])), fn($b) => $b !== '')), 0, 12);
@@ -95,8 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'page') {
         $all = bww_read('content', []);
         $all['services_page'] = bww_services_page_from_post($all['services_page'] ?? []);
-        bww_write('content', $all);
-        bww_flash('Saved.', 'ok');
+        if (bww_save('content', $all)) bww_flash('Saved.', 'ok');
         header('Location: page-services.php'); exit;
     }
 
@@ -107,25 +107,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             bww_flash('Please give the new service a name.', 'err');
         } else {
             $ids = array_column($services, 'id');
+            $ids[] = 'general';   // reserved for the gallery's "General work"
+            $icon = (string)($_POST['icon'] ?? '');
             $sv = [
                 'id'      => bww_slug($name, $ids),
                 'name'    => $name,
                 'tag'     => trim($_POST['tag'] ?? '') ?: $name,
-                'icon'    => $_POST['icon'] ?? 'drop',
+                'icon'    => array_key_exists($icon, bww_icon_choices()) ? $icon : 'drop',
                 'short'   => trim($_POST['short'] ?? ''),
                 'body'    => '',
                 'bullets' => [],
                 'image'   => '',
             ];
+            $upErr = '';
             $up = $_FILES['image'] ?? null;
             if ($up && ($up['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
                 $res = bww_handle_upload($up, 'photo');
-                if ($res['ok']) $sv['image'] = 'uploads/' . $res['file'];
-                else bww_flash(e($res['error']), 'warn');
+                if ($res['ok']) { $sv['image'] = 'uploads/' . $res['file']; bww_new_upload($sv['image']); }
+                else $upErr = $res['error'];
             }
             $services[] = $sv;
-            bww_write('services', $services);
-            bww_flash('Service added. It now appears on the home page, the services page, the footer, the gallery filters and the contact form.', 'ok');
+            if (bww_save('services', $services)) {
+                $msg = 'Service added. It now appears on the home page, the services page, the footer, the gallery filters and the contact form.';
+                bww_flash($upErr ? $msg . '<br>But the photo did not upload: ' . e($upErr) : $msg, $upErr ? 'warn' : 'ok');
+            }
         }
         header('Location: page-services.php'); exit;
     }
@@ -133,26 +138,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     /* ---------- update one service ---------- */
     if ($action === 'update') {
         $id = $_POST['id'] ?? '';
+        $upErr = '';
         foreach ($services as &$sv) {
             if (($sv['id'] ?? '') !== $id) continue;
             if (trim($_POST['name'] ?? '') === '') { bww_flash('A service needs a name.', 'err'); header('Location: page-services.php'); exit; }
             $sv = bww_service_text_from_post($sv);
 
             if (!empty($_POST['clear_image'])) {
-                bww_delete_upload($sv['image'] ?? '');
+                bww_delete_later($sv['image'] ?? '');   // removed only once the save succeeds
                 $sv['image'] = '';
             }
             $up = $_FILES['image'] ?? null;
             if ($up && ($up['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
                 $res = bww_handle_upload($up, 'photo');
-                if ($res['ok']) { bww_delete_upload($sv['image'] ?? ''); $sv['image'] = 'uploads/' . $res['file']; }
-                else bww_flash(e($res['error']), 'warn');
+                if ($res['ok']) { bww_delete_later($sv['image'] ?? ''); $sv['image'] = 'uploads/' . $res['file']; bww_new_upload($sv['image']); }
+                else $upErr = $res['error'];
             }
             break;
         }
         unset($sv);
-        bww_write('services', $services);
-        bww_flash('Saved — the wording is live on your website now.', 'ok');
+        if (bww_save('services', $services)) {
+            bww_flash($upErr ? 'Saved, but the photo did not upload: ' . e($upErr) : 'Saved — the wording is live on your website now.', $upErr ? 'warn' : 'ok');
+        }
         header('Location: page-services.php#' . urlencode($id)); exit;
     }
 
@@ -162,10 +169,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $name = bww_service_name($id);
         $kept = [];
         foreach ($services as $sv) {
-            if (($sv['id'] ?? '') === $id) { bww_delete_upload($sv['image'] ?? ''); continue; }
+            if (($sv['id'] ?? '') === $id) { bww_delete_later($sv['image'] ?? ''); continue; }
             $kept[] = $sv;
         }
-        bww_write('services', $kept);
+        if (!bww_save('services', $kept)) { header('Location: page-services.php'); exit; }
 
         // Photos filed under this service are kept and moved to General work —
         // deleting somebody's job photos because they renamed a service is not
@@ -175,7 +182,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (($p['category'] ?? '') === $id) { $p['category'] = 'general'; $moved++; }
         }
         unset($p);
-        if ($moved) bww_write('gallery', $gallery);
+        if ($moved && !bww_save('gallery', $gallery)) { header('Location: page-services.php'); exit; }
 
         bww_flash('“' . e($name) . '” removed from every page.' .
             ($moved ? ' ' . $moved . ' gallery ' . ($moved === 1 ? 'post was' : 'posts were') . ' moved to General work rather than deleted.' : ''), 'ok');
@@ -191,7 +198,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $j = $i + $dir;
             if ($j >= 0 && $j < count($services)) {
                 [$services[$i], $services[$j]] = [$services[$j], $services[$i]];
-                bww_write('services', $services);
+                bww_save('services', $services);
             }
             break;
         }

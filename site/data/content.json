@@ -52,23 +52,7 @@
     },
     "home": {
         "meta_title": "Well Pumps & Water Treatment in Baltimore, Harford & Carroll Counties",
-        "meta_desc": "Freeland Well and Water Services is a owner-operated company, providing water treatment, well pump system and plumbing services. We are located in Maryland, serving Baltimore County, Harford County, Carroll County and surrounding areas.",
-        "hero": {
-            "eyebrow": "Pure water. Reliable service.",
-            "heading": "Well and water services you can trust.",
-            "text": "At Freeland Well and Water services, we're dedicated to providing reliable, professional water and plumbing solutions for your home or business.  From WELL PUMPS and WATER TESTING to WATER TREATMENT, PLUMBING, and emergency services, we take the time to understand your needs and explain your options before we begin.  As a family-owned, owner operated business, we believe in fair pricing, dependable service, and doing the job right the firs time.  Your water is important to us and we're here to help keep it safe, clean and reliable.",
-            "points": [
-                "Serving Baltimore County, Harford County and Carroll County in Maryland",
-                "24/7 EMERGENCY SERVICE",
-                "Owner-operated",
-                "Licensed and Insured"
-            ],
-            "cta_secondary": "SERVICES",
-            "image": "img/hero.jpg",
-            "badge_show": false,
-            "badge_title": "Since 2025",
-            "badge_text": "We are a licensed and insured family owned and operated business in Maryland that see to all your water needs."
-        },
+        "meta_desc": "Owner-operated well pump, water testing, water treatment and plumbing services in Baltimore, Harford and Carroll Counties, Maryland. 24/7 emergency service.",
         "trust": {
             "show": true,
             "items": [
@@ -129,7 +113,7 @@
             "show": true,
             "eyebrow": "Where We Work",
             "heading": "Proudly Serving Maryland and Surrounding Areas",
-            "text": "Dedicated to keeping our MD an PA neighborhoods thriving.",
+            "text": "Dedicated to keeping our MD and PA neighborhoods thriving.",
             "extra_tag": "Freeland & Surrounds"
         },
         "stats": {
@@ -158,7 +142,7 @@
     },
     "about": {
         "meta_title": "About Us",
-        "meta_desc": "Looking for reliable well pump, plumbing, or water treatment services? Freeland Well and Water Services is a family-owned, owner-operated business providing well pump replacement, well water testing, water treatment systems, plumbing, gas fitting, and well pressure tank replacement. We offer 24/7 emergency services with no additional emergency fees. Call us for dependable service, fair pricing, and quality workmanship you can trust.",
+        "meta_desc": "A family-owned, owner-operated well, plumbing and gas fitting business in Freeland, Maryland. 24/7 emergency service with no extra emergency fees.",
         "hero": {
             "eyebrow": "About Us",
             "heading": "We Are Here To Make a Difference",
@@ -302,7 +286,7 @@
     },
     "reviews_page": {
         "meta_title": "",
-        "meta_desc": "What our Customers say about us.",
+        "meta_desc": "What customers across Baltimore, Harford and Carroll Counties say about Freeland Well and Water Services' well, water and plumbing work.",
         "hero": {
             "eyebrow": "",
             "heading": "",

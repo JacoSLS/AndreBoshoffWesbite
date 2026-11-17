@@ -39,7 +39,9 @@ $services = bww_services();
         <?php endif; ?>
         <h3><?= e($sv['name']) ?></h3>
         <p><?= e($sv['short'] ?? '') ?></p>
+        <?php if (shown('services_page.detail.show')): ?>
         <a class="card__link" href="#<?= e($sv['id']) ?>">Details <?= icon('arrow') ?></a>
+        <?php endif; ?>
       </article>
       <?php endforeach; ?>
     </div>

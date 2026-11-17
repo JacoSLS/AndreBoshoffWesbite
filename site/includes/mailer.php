@@ -31,10 +31,12 @@ function bww_send_mail(string $to, string $subject, string $body, string $replyT
         'From: ' . bww_header_addr($fromName, $fromEmail),
         'MIME-Version: 1.0',
         'Content-Type: text/plain; charset=UTF-8',
-        'Content-Transfer-Encoding: 8bit',
+        'Content-Transfer-Encoding: quoted-printable',
         'X-Mailer: BWW-Site',
         'Date: ' . date('r'),
     ];
+    // One kind of line ending, and no line longer than mail servers accept.
+    $body = quoted_printable_encode(preg_replace('/\r\n|\r|\n/', "\r\n", $body));
     if ($replyTo) $headers[] = 'Reply-To: ' . bww_header_addr($replyName, $replyTo);
     if (!empty($cfg['bcc'])) $headers[] = 'Bcc: ' . $cfg['bcc'];
 
@@ -64,6 +66,11 @@ function bww_smtp_send(array $cfg, string $to, string $subject, string $body, ar
     $port    = (int)$cfg['port'];
     $secure  = strtolower((string)$cfg['secure']);
     $timeout = (int)($cfg['timeout'] ?? 15);
+
+    // Never send the mailbox password over an unencrypted connection.
+    if (!empty($cfg['username']) && !in_array($secure, ['ssl', 'tls'], true)) {
+        return ['ok' => false, 'error' => "SMTP login needs an encrypted connection: set 'secure' to 'ssl' or 'tls'."];
+    }
 
     $remote = ($secure === 'ssl' ? 'ssl://' : '') . $host . ':' . $port;
     $ctx = stream_context_create(['ssl' => ['verify_peer' => true, 'verify_peer_name' => true]]);
@@ -126,7 +133,7 @@ function bww_smtp_send(array $cfg, string $to, string $subject, string $body, ar
     $msg = implode("\r\n", $headers) . "\r\n"
          . 'To: ' . $to . "\r\n"
          . 'Subject: ' . bww_encode_subject($subject) . "\r\n\r\n"
-         . preg_replace('/^\./m', '..', str_replace(["\r\n", "\r", "\n"], "\r\n", $body));
+         . preg_replace('/^\./m', '..', preg_replace('/\r\n|\r|\n/', "\r\n", $body));
 
     fwrite($fp, $msg . "\r\n.\r\n");
     if ($code($read()) !== 250) return $fail('The server did not accept the message.');

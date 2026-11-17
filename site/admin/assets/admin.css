@@ -24,9 +24,10 @@ code{background:#fff;border:1px solid var(--line);border-radius:4px;padding:.1em
 .abar .wrap{display:flex;align-items:center;gap:16px;min-height:64px;flex-wrap:wrap}
 .abar img{height:34px;width:auto}
 .abar .who{margin-left:auto;font-size:.82rem;color:rgba(255,255,255,.75)}
-.abar a.out{color:#fff;font-size:.82rem;font-weight:600;border:1px solid rgba(255,255,255,.35);
-            padding:.42em 1em;border-radius:var(--r)}
-.abar a.out:hover{background:rgba(255,255,255,.12)}
+.abar .out-form{margin:0}
+.abar .out{color:#fff;font:inherit;font-size:.82rem;font-weight:600;border:1px solid rgba(255,255,255,.35);
+            padding:.42em 1em;border-radius:var(--r);background:none;cursor:pointer}
+.abar .out:hover{background:rgba(255,255,255,.12)}
 
 .anav{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
 .anav .wrap{display:flex;gap:4px;overflow-x:auto}

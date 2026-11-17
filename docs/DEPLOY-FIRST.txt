@@ -1,11 +1,12 @@
-FREELAND WELL AND WATER SERVICES - UPLOAD INSTRUCTIONS
-=====================================================
-Delete this file once the site is up.
+FREELAND WELL AND WATER SERVICES - FRESH INSTALL INSTRUCTIONS
+============================================================
+For a brand-new install only. To update the live site, see CHANGELOG.txt.
+This file sits next to the website zip. Never upload it to the server.
 
 1. UPLOAD
    cPanel > File Manager > double-click public_html
    Delete anything already in there (default.html, index.html).
-   Upload > drag freeland-website-v1.7.zip in > wait for 100%.
+   Upload > drag the website zip (e.g. freeland-website-v1.8.zip) in > wait for 100%.
    Right-click the zip > Extract > Extract Files.
    Delete the zip afterwards.
    index.php must now sit directly inside public_html.
@@ -27,22 +28,28 @@ Delete this file once the site is up.
    to https://www.freelandwellandwater.com. Until step 4 finishes, browsers
    show a security warning; that goes away once the padlock works.
 
-6. ADMIN LOGIN
-   https://www.freelandwellandwater.com/admin/
-   Username: andre
-   There is no built-in password. Sign-in only works once data/auth.json
-   exists. (Change the password any time under Settings.)
+6. ADMIN LOGIN (there is no built-in password)
+   a. File Manager > open the "data" folder > + File > name it: setup-allowed
+      (an empty file; nothing goes in it).
+   b. Open https://www.freelandwellandwater.com/admin/
+      It shows "Set up your login". Choose the username and password
+      and click Save and sign in. Type the password, do not paste it.
+   c. The setup-allowed file deletes itself. Check it is gone.
+   Change the password any time under Settings.
 
 7. SECURITY CHECK
    Visit https://www.freelandwellandwater.com/data/auth.json
    It must say 403 Forbidden. If you can read the file, stop and get help.
+   Visit https://www.freelandwellandwater.com/README.md
+   It must also say 403 Forbidden.
 
 8. EMAIL FOR THE CONTACT FORM
    cPanel > Email Accounts > create andre@freelandwellandwater.com
-   (the site shows this address and sends contact form messages to it).
-   Optionally also create e.g. noreply@freelandwellandwater.com for sending.
-   Then put those SMTP details into includes/mail-config.php.
-   Without this, enquiries go to spam or vanish.
+   (the site shows this address, sends contact form messages to it and
+   sends them from it). Nothing else is needed: the site uses the server's
+   own mail sending. Send one real test enquiry from the contact page.
+   Optional SMTP: see section 4 of README.md (the password goes in
+   includes/mail-local.php on the server, never in a file in the zip).
 
 9. GOING LIVE ON GOOGLE
    The site is open to Google from the start (there is no hide switch).
