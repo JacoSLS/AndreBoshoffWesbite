@@ -1,0 +1,13 @@
+# Uploaded photos only. Nothing in this folder may ever run as a script.
+<IfModule mod_authz_core.c>
+  <FilesMatch "\.(php\d?|phtml|phar|pl|py|cgi|sh)$">
+    Require all denied
+  </FilesMatch>
+</IfModule>
+<IfModule !mod_authz_core.c>
+  <FilesMatch "\.(php\d?|phtml|phar|pl|py|cgi|sh)$">
+    Order allow,deny
+    Deny from all
+  </FilesMatch>
+</IfModule>
+Options -Indexes -ExecCGI
