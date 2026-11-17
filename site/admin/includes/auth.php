@@ -9,7 +9,11 @@ bww_start_session();
 // released automatically when the request ends.
 if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     $GLOBALS['BWW_SAVE_LOCK'] = @fopen(BWW_DATA . '/admin-save.lock', 'c');
-    if ($GLOBALS['BWW_SAVE_LOCK']) flock($GLOBALS['BWW_SAVE_LOCK'], LOCK_EX);
+    if (!$GLOBALS['BWW_SAVE_LOCK'] || !flock($GLOBALS['BWW_SAVE_LOCK'], LOCK_EX)) {
+        error_log('Admin: could not lock data/admin-save.lock');
+        bww_flash('Nothing was saved: the website could not lock its data folder. Please try again. If it keeps happening, ask your web person to check the data folder.', 'err');
+        header('Location: ' . basename($_SERVER['SCRIPT_NAME'] ?? 'dashboard.php')); exit;
+    }
 }
 
 /** Largest upload the server accepts in one save, in bytes. */
@@ -86,8 +90,9 @@ function bww_locked_out(): int {
     return $s > 0 ? (int)ceil($s / 60) : 0;
 }
 
-function bww_register_failure(): void {
-    bww_rate_hit('login', BWW_MAX_ATTEMPTS, BWW_LOCKOUT_MINUTES * 60, BWW_LOCKOUT_MINUTES * 60);
+/** Claim one sign-in attempt before checking the password (false = locked out, or the limit could not be checked). */
+function bww_take_login_attempt(): bool {
+    return bww_rate_take('login', BWW_MAX_ATTEMPTS, BWW_LOCKOUT_MINUTES * 60, BWW_LOCKOUT_MINUTES * 60);
 }
 
 /* ---- CSRF ---- */

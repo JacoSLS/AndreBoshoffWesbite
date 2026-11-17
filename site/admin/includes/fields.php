@@ -150,7 +150,9 @@ function bww_group(string $title, string $intro, array $fields, array $data, str
 function bww_clean_text($raw, array $f): string {
     if (!is_string($raw)) return '';
     $max = (int)($f['max'] ?? 10000);
-    return function_exists('mb_substr') ? mb_substr(trim($raw), 0, $max) : substr(trim($raw), 0, $max);
+    if (function_exists('mb_substr')) return mb_substr(trim($raw), 0, $max);
+    // without mbstring: count whole UTF-8 characters, never split one
+    return preg_match('/^.{0,' . $max . '}/su', trim($raw), $m) ? $m[0] : '';
 }
 
 /**
@@ -222,7 +224,7 @@ function bww_collect(array $fields, array $posted, array $existing, string $pref
                 foreach ($f['fields'] as $sub) {
                     $v = $row[$sub['key']] ?? '';
                     $clean[$sub['key']] = ($sub['type'] ?? '') === 'icon'
-                        ? (array_key_exists($v, bww_icon_choices()) ? $v : 'checkc')
+                        ? (is_string($v) && array_key_exists($v, bww_icon_choices()) ? $v : 'checkc')
                         : bww_clean_text($v, $sub);
                 }
                 $first = $f['fields'][0]['key'];

@@ -210,7 +210,7 @@
       if (e.key === 'ArrowLeft') move(-1);
       if (e.key === 'ArrowRight') move(1);
       if (e.key === 'Tab') {   // keep Tab and Shift+Tab inside the viewer
-        var f = Array.prototype.filter.call(viewer.querySelectorAll('button, a[href]'), function (el) { return el.offsetParent !== null; });
+        var f = Array.prototype.filter.call(viewer.querySelectorAll('button, a[href]'), function (el) { return el.getClientRects().length > 0; });
         if (!f.length) return;
         var first = f[0], last = f[f.length - 1];
         if (e.shiftKey && (document.activeElement === first || !viewer.contains(document.activeElement))) { e.preventDefault(); last.focus(); }

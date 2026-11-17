@@ -37,14 +37,16 @@ if ($setup && $setupOk && $_SERVER['REQUEST_METHOD'] === 'POST') {
 } elseif (!$setup && $_SERVER['REQUEST_METHOD'] === 'POST' && !$locked) {
     if (!bww_csrf_ok()) {
         $error = 'Your session timed out. Please try again.';
+    } elseif (!bww_take_login_attempt()) {
+        $locked = bww_locked_out();
+        $error = $locked ? '' : 'Signing in is not possible right now. Please try again in a few minutes.';
     } else {
         $u = trim($_POST['user'] ?? '');
         $p = (string)($_POST['pass'] ?? '');
-        if (bww_attempt_login($u, $p)) {
+        if (bww_attempt_login($u, $p)) {   // a good sign-in clears the count
             header('Location: dashboard.php');
             exit;
         }
-        bww_register_failure();
         $locked = bww_locked_out();
         $error = $locked
             ? 'Too many attempts. Please wait ' . $locked . ' minutes and try again.'

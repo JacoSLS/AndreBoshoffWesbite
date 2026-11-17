@@ -42,6 +42,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && shown('contact_page.show_form')) {
     }
     if ($len($old['message']) > $MAX['message']) $errors[] = 'That message is too long. Please shorten it a little.';
 
+    // Claim one of this visitor's 5 messages an hour before sending, in one locked
+    // step, so messages sent at the same moment cannot all get through.
+    if (!$errors && !bww_rate_take('contact', 5, 3600, 3600)) {
+        $wait = bww_rate_blocked('contact');
+        $errors[] = $wait
+            ? 'Thanks — we have already received several messages from you. Please call us on ' . s('phone_display') . ', or try again in ' . (int)ceil($wait / 60) . ' minutes.'
+            : 'We could not send your message just now. Please call us on ' . s('phone_display') . ' instead.';
+    }
+
     if (!$errors) {
         $serviceName = $old['service'] ? bww_service_name($old['service']) : 'Not specified';
         $body = "New enquiry from the website\r\n" . str_repeat('-', 46) . "\r\n\r\n"
@@ -66,7 +75,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && shown('contact_page.show_form')) {
             $sent = true;
             $old = array_map(fn() => '', $old);
             $_SESSION['csrf'] = bin2hex(random_bytes(16));
-            bww_rate_hit('contact', 5, 3600, 3600);   // at most 5 messages an hour from one visitor
         } else {
             error_log('Contact form: message not sent: ' . $res['error']);
             $errors[] = 'We could not send your message just now. Please call us on ' . s('phone_display') . ' instead.';

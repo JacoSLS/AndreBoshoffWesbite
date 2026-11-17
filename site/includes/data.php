@@ -41,18 +41,31 @@ function bww_rate_key(string $bucket): string {
     return $bucket . ':' . substr(hash('sha256', ($_SERVER['REMOTE_ADDR'] ?? '') . '|bww'), 0, 20);
 }
 
-/** Run $fn(&$records, $now) on the stored records under a file lock, then save them. */
-function bww_rate_update(callable $fn): void {
+/**
+ * Run $fn(&$records, $now) on the stored records under a file lock, then save them.
+ * Returns false if the lock could not be taken or the records could not be saved.
+ */
+function bww_rate_update(callable $fn): bool {
     $lock = @fopen(BWW_DATA . '/rate-limits.lock', 'c');
-    if ($lock) flock($lock, LOCK_EX);
-    $all = bww_read('rate-limits', []);
-    $now = time();
-    foreach ($all as $k => $r) {   // forget anything older than a day
-        if (max((int)($r['start'] ?? 0), (int)($r['until'] ?? 0)) < $now - 86400) unset($all[$k]);
+    if (!$lock || !flock($lock, LOCK_EX)) {
+        if ($lock) fclose($lock);
+        error_log('Rate limits: could not lock data/rate-limits.lock');
+        return false;
     }
-    $fn($all, $now);
-    bww_write('rate-limits', $all);
-    if ($lock) { flock($lock, LOCK_UN); fclose($lock); }
+    try {
+        $all = bww_read('rate-limits', []);
+        $now = time();
+        foreach ($all as $k => $r) {   // forget anything older than a day
+            if (max((int)($r['start'] ?? 0), (int)($r['until'] ?? 0)) < $now - 86400) unset($all[$k]);
+        }
+        $fn($all, $now);
+        $ok = bww_write('rate-limits', $all);
+    } finally {
+        flock($lock, LOCK_UN);
+        fclose($lock);
+    }
+    if (!$ok) error_log('Rate limits: could not save data/rate-limits.json');
+    return $ok;
 }
 
 /** Seconds this visitor must still wait for $bucket (0 = not blocked). */
@@ -61,16 +74,25 @@ function bww_rate_blocked(string $bucket): int {
     return max(0, (int)($r['until'] ?? 0) - time());
 }
 
-/** Count one attempt; after $max attempts within $window seconds, block for $lockSecs. */
-function bww_rate_hit(string $bucket, int $max, int $window, int $lockSecs): void {
+/**
+ * Claim one attempt before doing it, in a single locked step so attempts sent at
+ * the same moment cannot all slip through. After $max attempts within $window
+ * seconds the visitor is blocked for $lockSecs. Returns false when blocked, or
+ * when the limit cannot be checked (then the attempt is refused, not allowed).
+ */
+function bww_rate_take(string $bucket, int $max, int $window, int $lockSecs): bool {
     $key = bww_rate_key($bucket);
-    bww_rate_update(function (array &$all, int $now) use ($key, $max, $window, $lockSecs) {
+    $allowed = false;
+    $saved = bww_rate_update(function (array &$all, int $now) use ($key, $max, $window, $lockSecs, &$allowed) {
         $r = $all[$key] ?? [];
-        if ($now - (int)($r['start'] ?? 0) > $window) $r = ['n' => 0, 'start' => $now, 'until' => (int)($r['until'] ?? 0)];
+        if ((int)($r['until'] ?? 0) > $now) return;   // still blocked
+        if ($now - (int)($r['start'] ?? 0) > $window) $r = ['n' => 0, 'start' => $now, 'until' => 0];
         $r['n'] = (int)$r['n'] + 1;
         if ($r['n'] >= $max) $r = ['n' => 0, 'start' => $now, 'until' => $now + $lockSecs];
         $all[$key] = $r;
+        $allowed = true;
     });
+    return $saved && $allowed;
 }
 
 function bww_rate_clear(string $bucket): void {
