@@ -50,7 +50,8 @@ $nav       = bww_nav();
         <h3><?= e(c('footer.col_services', 'Services')) ?></h3>
         <ul>
           <?php foreach ($services as $sv): ?>
-          <li><a href="<?= e(page_url('services', $sv['id'])) ?>"><?= e($sv['name']) ?></a></li>
+          <li><a href="<?= e(shown('services_page.detail.show') ? page_url('services', $sv['id'])
+                                : (shown('services_page.cards_show') ? page_url('services', 'card-' . $sv['id']) : page_url('services'))) ?>"><?= e($sv['name']) ?></a></li>
           <?php endforeach; ?>
         </ul>
       </div>

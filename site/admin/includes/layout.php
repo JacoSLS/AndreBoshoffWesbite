@@ -50,7 +50,7 @@ $tabs = [
     <img src="../assets/img/logo-white.png" alt="<?= e(s('business')) ?>">
     <button type="button" class="pv-open" id="pvOpen" aria-pressed="false">Live preview</button>
     <span class="who">Signed in as <?= e($_SESSION['bww_user'] ?? '') ?></span>
-    <a class="out" href="logout.php">Sign out</a>
+    <form method="post" action="logout" class="out-form"><?= bww_csrf_field() ?><button type="submit" class="out">Sign out</button></form>
   </div>
 </div>
 

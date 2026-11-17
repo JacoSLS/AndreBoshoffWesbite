@@ -146,6 +146,15 @@ function bww_group(string $title, string $intro, array $fields, array $data, str
     echo '</div>';
 }
 
+/** A submitted text value: trimmed and cut to the field's maximum length (10000 if none is set). */
+function bww_clean_text($raw, array $f): string {
+    if (!is_string($raw)) return '';
+    $max = (int)($f['max'] ?? 10000);
+    if (function_exists('mb_substr')) return mb_substr(trim($raw), 0, $max);
+    // without mbstring: count whole UTF-8 characters, never split one
+    return preg_match('/^.{0,' . $max . '}/su', trim($raw), $m) ? $m[0] : '';
+}
+
 /**
  * Collect submitted values for a field spec, merging over what is already
  * stored so untouched keys survive.
@@ -171,7 +180,7 @@ function bww_collect(array $fields, array $posted, array $existing, string $pref
                 break;
             }
             if (!empty($_POST[$prefix . '_clear_' . $key])) {
-                bww_delete_upload($keep);
+                bww_delete_later($keep);   // removed only once the save succeeds
                 $out[$key] = '';
                 break;
             }
@@ -180,7 +189,8 @@ function bww_collect(array $fields, array $posted, array $existing, string $pref
                 $mode = ($f['mode'] ?? 'photo');
                 $res = bww_handle_upload($up, $mode);
                 if ($res['ok']) {
-                    bww_delete_upload($keep);
+                    bww_delete_later($keep);
+                    bww_new_upload('uploads/' . $res['file']);
                     $out[$key] = 'uploads/' . $res['file'];
                 } else {
                     $GLOBALS['BWW_FIELD_ERRORS'][] = ($f['label'] ?? $key) . ': ' . $res['error'];
@@ -191,8 +201,18 @@ function bww_collect(array $fields, array $posted, array $existing, string $pref
             }
             break;
 
+        case 'select':
+            $v = is_string($raw) ? $raw : '';
+            if (array_key_exists($v, $f['options'] ?? [])) $out[$key] = $v;   // otherwise keep the old value
+            break;
+
+        case 'icon':
+            $v = is_string($raw) ? $raw : '';
+            if (array_key_exists($v, bww_icon_choices())) $out[$key] = $v;
+            break;
+
         case 'list':
-            $vals = array_values(array_filter(array_map('trim', (array)($raw ?? [])), fn($v) => $v !== ''));
+            $vals = array_values(array_filter(array_map(fn($v) => bww_clean_text($v, $f), (array)($raw ?? [])), fn($v) => $v !== ''));
             $out[$key] = array_slice($vals, 0, 30);
             break;
 
@@ -202,7 +222,10 @@ function bww_collect(array $fields, array $posted, array $existing, string $pref
                 if (!is_array($row)) continue;
                 $clean = [];
                 foreach ($f['fields'] as $sub) {
-                    $clean[$sub['key']] = trim((string)($row[$sub['key']] ?? ''));
+                    $v = $row[$sub['key']] ?? '';
+                    $clean[$sub['key']] = ($sub['type'] ?? '') === 'icon'
+                        ? (is_string($v) && array_key_exists($v, bww_icon_choices()) ? $v : 'checkc')
+                        : bww_clean_text($v, $sub);
                 }
                 $first = $f['fields'][0]['key'];
                 if (($clean[$first] ?? '') === '') continue;   // blank first field = deleted row
@@ -212,7 +235,7 @@ function bww_collect(array $fields, array $posted, array $existing, string $pref
             break;
 
         default:
-            $out[$key] = trim((string)($raw ?? ''));
+            $out[$key] = bww_clean_text($raw ?? '', $f);
         }
     }
     return $out;

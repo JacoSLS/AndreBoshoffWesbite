@@ -58,15 +58,24 @@
     // the other photos are only downloaded just before they are shown
     var load = function (n) {
       var im = imgs[n];
-      if (im && im.dataset.src) { im.src = im.dataset.src; im.removeAttribute('data-src'); }
+      if (im && im.dataset.src) { im.loading = 'eager'; im.src = im.dataset.src; im.removeAttribute('data-src'); }
+      else if (im && im.loading === 'lazy') im.loading = 'eager';   // hidden photos never start loading while lazy
     };
+    // Move to the next photo only once it has loaded; a photo that fails to load is skipped.
     var step = function () {
-      imgs[i].classList.remove('is-active');
-      if (dots[i]) dots[i].classList.remove('on');
-      i = (i + 1) % imgs.length;
-      imgs[i].classList.add('is-active');
-      if (dots[i]) dots[i].classList.add('on');
-      load((i + 1) % imgs.length);
+      for (var t = 1; t < imgs.length; t++) {
+        var n = (i + t) % imgs.length, im = imgs[n];
+        load(n);
+        if (!im.complete) return;          // still loading: keep the current photo, try again next time
+        if (!im.naturalWidth) continue;    // broken: skip it
+        imgs[i].classList.remove('is-active');
+        if (dots[i]) dots[i].classList.remove('on');
+        i = n;
+        im.classList.add('is-active');
+        if (dots[i]) dots[i].classList.add('on');
+        load((i + 1) % imgs.length);
+        return;
+      }
     };
     // Start once the page has fully loaded (so the first photo counts as the page's
     // main image for Google's speed test), staggered so the grid does not flip in unison.
@@ -161,13 +170,23 @@
       paint();
       viewer.classList.add('is-open');
       document.body.style.overflow = 'hidden';
+      background(true);
       viewer.querySelector('.viewer__close').focus();
     }
 
     function close() {
       viewer.classList.remove('is-open');
       document.body.style.overflow = '';
+      background(false);
       if (lastFocus && lastFocus.focus) lastFocus.focus();
+    }
+    // While the viewer is open, the rest of the page cannot be reached with the keyboard.
+    function background(off) {
+      for (var node = viewer; node && node !== document.body; node = node.parentElement) {
+        Array.prototype.forEach.call(node.parentElement.children, function (el) {
+          if (el !== node && el.tagName !== 'SCRIPT') el.inert = off;
+        });
+      }
     }
     function move(d) {
       if (!current || current.photos.length < 2) return;
@@ -190,6 +209,13 @@
       if (e.key === 'Escape') close();
       if (e.key === 'ArrowLeft') move(-1);
       if (e.key === 'ArrowRight') move(1);
+      if (e.key === 'Tab') {   // keep Tab and Shift+Tab inside the viewer
+        var f = Array.prototype.filter.call(viewer.querySelectorAll('button, a[href]'), function (el) { return el.getClientRects().length > 0; });
+        if (!f.length) return;
+        var first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && (document.activeElement === first || !viewer.contains(document.activeElement))) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
     });
   }
 

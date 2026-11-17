@@ -32,8 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     $legal = bww_read('legal', []);
     $legal[$which] = bww_collect($SPEC, $_POST['d'] ?? [], $legal[$which] ?? [], 'd');
-    bww_write('legal', $legal);
-    bww_flash('Saved — the page is updated on your website.', 'ok');
+    if (bww_save('legal', $legal)) bww_flash('Saved — the page is updated on your website.', 'ok');
     header('Location: legal.php?doc=' . $which); exit;
 }
 

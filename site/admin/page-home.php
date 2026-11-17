@@ -66,6 +66,8 @@ bww_run_editor('home', [
        ]],
       ['key' => 'cta_label', 'label' => 'Button label', 'max' => 40, 'hint' => 'Links to About Us. Leave empty to hide.'],
       ['key' => 'image',     'label' => 'Photo', 'type' => 'image'],
+      ['key' => 'image_alt', 'label' => 'What the photo shows', 'max' => 160,
+       'hint' => 'One short sentence, read aloud to visitors who cannot see the photo and used by Google. Leave empty to use the heading.'],
     ],
   ],
   [

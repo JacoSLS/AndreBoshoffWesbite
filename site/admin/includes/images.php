@@ -41,6 +41,15 @@ function bww_handle_upload(array $file, string $mode = 'photo'): array {
     }
 
     [$w, $h, $type] = $info;
+    // Check the pixel size before opening the image: a small file can still be
+    // huge once opened (about 5 bytes per pixel) and would crash the upload.
+    $mem = trim((string)ini_get('memory_limit'));
+    $unit = ['g' => 1073741824, 'm' => 1048576, 'k' => 1024][strtolower(substr($mem, -1))] ?? 1;
+    $memB = (int)$mem * $unit;
+    $room = ($mem === '-1' || $memB <= 0) ? 500000000 : $memB - memory_get_usage();
+    if ($w * $h * 5 > $room) {
+        return $fail('That photo has too many pixels (' . $w . ' × ' . $h . '). Please use a photo straight from a phone or camera, or make it smaller first.');
+    }
     $src = match ($type) {
         IMAGETYPE_JPEG => @imagecreatefromjpeg($file['tmp_name']),
         IMAGETYPE_PNG  => @imagecreatefrompng($file['tmp_name']),
@@ -136,14 +145,4 @@ function bww_delete_upload(?string $ref): void {
     }
     // card-sized copies made by bww_card_img(), e.g. name-c720x450.jpg
     foreach (glob(BWW_UPLOADS . '/' . preg_replace('/\.[a-z]+$/i', '', $name) . '-c*x*.jpg') ?: [] as $path) @unlink($path);
-}
-
-/** Remove every photo belonging to a gallery post. */
-function bww_delete_photos(array $photos): void {
-    foreach ($photos as $ph) {
-        foreach (['file', 'thumb'] as $k) {
-            $n = $ph[$k] ?? '';
-            if ($n && is_file(BWW_UPLOADS . '/' . basename($n))) @unlink(BWW_UPLOADS . '/' . basename($n));
-        }
-    }
 }

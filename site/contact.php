@@ -2,8 +2,14 @@
 require_once __DIR__ . '/includes/data.php';
 require_once __DIR__ . '/includes/mailer.php';
 
+$https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+      || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
+session_set_cookie_params(['lifetime' => 0, 'path' => '/', 'httponly' => true, 'secure' => $https, 'samesite' => 'Lax']);
 session_start();
 if (empty($_SESSION['csrf'])) $_SESSION['csrf'] = bin2hex(random_bytes(16));
+
+// Longest accepted value for each box (characters).
+$MAX = ['name' => 100, 'email' => 254, 'phone' => 40, 'message' => 5000];
 
 $L      = c('contact_page.labels', []);
 $sent   = false;
@@ -11,12 +17,21 @@ $errors = [];
 $old = ['name' => '', 'email' => '', 'phone' => '', 'service' => '', 'message' => ''];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && shown('contact_page.show_form')) {
-    foreach ($old as $k => $_) $old[$k] = trim($_POST[$k] ?? '');
+    foreach ($old as $k => $_) $old[$k] = is_string($_POST[$k] ?? null) ? trim($_POST[$k]) : '';
+    // only accept a service that exists
+    if (!in_array($old['service'], array_column(bww_services(), 'id'), true)) $old['service'] = '';
 
-    if (!hash_equals($_SESSION['csrf'] ?? '', $_POST['csrf'] ?? '')) {
+    if (!hash_equals($_SESSION['csrf'] ?? '', is_string($_POST['csrf'] ?? null) ? $_POST['csrf'] : '')) {
         $errors[] = 'Your session expired. Please try sending the message again.';
     }
+    if ($wait = bww_rate_blocked('contact')) {
+        $errors[] = 'Thanks — we have already received several messages from you. Please call us on ' . s('phone_display') . ', or try again in ' . (int)ceil($wait / 60) . ' minutes.';
+    }
     if (!empty($_POST['website'])) $errors[] = 'Your message could not be sent.';
+    $len = fn($v) => function_exists('mb_strlen') ? mb_strlen($v) : strlen($v);
+    if ($len($old['name'])  > $MAX['name'])  $errors[] = 'That name is too long.';
+    if ($len($old['email']) > $MAX['email']) $errors[] = 'That email address is too long.';
+    if ($len($old['phone']) > $MAX['phone']) $errors[] = 'That phone number is too long.';
     if ($old['name'] === '')    $errors[] = 'Please tell us your name.';
     if ($old['message'] === '') $errors[] = 'Please tell us what you need help with.';
     if ($old['email'] === '' && $old['phone'] === '') {
@@ -25,7 +40,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && shown('contact_page.show_form')) {
     if ($old['email'] !== '' && !filter_var($old['email'], FILTER_VALIDATE_EMAIL)) {
         $errors[] = 'That email address does not look right — please check it.';
     }
-    if (strlen($old['message']) > 5000) $errors[] = 'That message is too long. Please shorten it a little.';
+    if ($len($old['message']) > $MAX['message']) $errors[] = 'That message is too long. Please shorten it a little.';
+
+    // Claim one of this visitor's 5 messages an hour before sending, in one locked
+    // step, so messages sent at the same moment cannot all get through.
+    if (!$errors && !bww_rate_take('contact', 5, 3600, 3600)) {
+        $wait = bww_rate_blocked('contact');
+        $errors[] = $wait
+            ? 'Thanks — we have already received several messages from you. Please call us on ' . s('phone_display') . ', or try again in ' . (int)ceil($wait / 60) . ' minutes.'
+            : 'We could not send your message just now. Please call us on ' . s('phone_display') . ' instead.';
+    }
 
     if (!$errors) {
         $serviceName = $old['service'] ? bww_service_name($old['service']) : 'Not specified';
@@ -37,7 +61,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && shown('contact_page.show_form')) {
               . "Sent:     " . date('D, j M Y, H:i') . "\r\n\r\n"
               . "Message\r\n" . str_repeat('-', 46) . "\r\n"
               . $old['message'] . "\r\n\r\n" . str_repeat('-', 46) . "\r\n"
-              . "Reply directly to this email to answer " . $old['name'] . ".\r\n";
+              . ($old['email'] !== ''
+                  ? "Reply directly to this email to answer " . $old['name'] . ".\r\n"
+                  : "No email given: call " . $old['name'] . " on " . $old['phone'] . " to answer.\r\n");
 
         $res = bww_send_mail(
             s('form_recipient', s('email')),
@@ -50,7 +76,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && shown('contact_page.show_form')) {
             $old = array_map(fn() => '', $old);
             $_SESSION['csrf'] = bin2hex(random_bytes(16));
         } else {
-            $errors[] = 'We could not send your message just now. Please call us on ' . s('phone_display') . ' instead. (' . $res['error'] . ')';
+            error_log('Contact form: message not sent: ' . $res['error']);
+            $errors[] = 'We could not send your message just now. Please call us on ' . s('phone_display') . ' instead.';
         }
     }
 }
@@ -140,17 +167,17 @@ $hasForm  = shown('contact_page.show_form');
 
           <div class="field">
             <label for="f-name"><?= e($L['name'] ?? 'Your name') ?> <span class="req">*</span></label>
-            <input type="text" id="f-name" name="name" value="<?= e($old['name']) ?>" required autocomplete="name">
+            <input type="text" id="f-name" name="name" value="<?= e($old['name']) ?>" maxlength="<?= $MAX['name'] ?>" required autocomplete="name">
           </div>
 
           <div class="field">
             <label for="f-phone"><?= e($L['phone'] ?? 'Phone number') ?></label>
-            <input type="tel" id="f-phone" name="phone" value="<?= e($old['phone']) ?>" autocomplete="tel">
+            <input type="tel" id="f-phone" name="phone" value="<?= e($old['phone']) ?>" maxlength="<?= $MAX['phone'] ?>" autocomplete="tel">
           </div>
 
           <div class="field">
             <label for="f-email"><?= e($L['email'] ?? 'Email address') ?></label>
-            <input type="email" id="f-email" name="email" value="<?= e($old['email']) ?>" autocomplete="email">
+            <input type="email" id="f-email" name="email" value="<?= e($old['email']) ?>" maxlength="<?= $MAX['email'] ?>" autocomplete="email">
             <p class="field-note">Give us at least one of phone or email so we can reply.</p>
           </div>
 
@@ -168,7 +195,7 @@ $hasForm  = shown('contact_page.show_form');
 
           <div class="field">
             <label for="f-message"><?= e($L['message'] ?? 'Tell us what is happening') ?> <span class="req">*</span></label>
-            <textarea id="f-message" name="message" required placeholder="<?= e(c('contact_page.message_placeholder')) ?>"><?= e($old['message']) ?></textarea>
+            <textarea id="f-message" name="message" maxlength="<?= $MAX['message'] ?>" required placeholder="<?= e(c('contact_page.message_placeholder')) ?>"><?= e($old['message']) ?></textarea>
           </div>
 
           <button class="btn btn--primary btn--block" type="submit"><?= e($L['submit'] ?? 'Send message') ?></button>

@@ -18,9 +18,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $to    = trim($_POST['form_recipient'] ?? '');
         $errs  = [];
 
+        $fb    = trim($_POST['facebook'] ?? '');
+
         if ($phone === '') $errs[] = 'Please enter a phone number.';
         if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) $errs[] = 'That email address does not look right.';
         if ($to !== '' && !filter_var($to, FILTER_VALIDATE_EMAIL)) $errs[] = 'The address for enquiries does not look right.';
+        if ($fb !== '' && (!filter_var($fb, FILTER_VALIDATE_URL) || !preg_match('#^https://#i', $fb))) {
+            $errs[] = 'The Facebook address must be a full link starting with https://';
+        }
 
         if ($errs) {
             bww_flash(implode('<br>', array_map('e', $errs)), 'err');
@@ -32,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $site['phone_link']     = '+' . $digits;
             $site['email']          = $email;
             $site['form_recipient'] = $to ?: $email;
-            $site['facebook']       = trim($_POST['facebook'] ?? '');
+            $site['facebook']       = $fb;
             $site['emergency_line'] = trim($_POST['emergency_line'] ?? '');
             $site['area_note']      = trim($_POST['area_note'] ?? '');
 
@@ -48,20 +53,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             $site['hours'] = $hours;
 
-            bww_write('site', $site);
-            bww_flash('Saved — your website has been updated.', 'ok');
+            if (bww_save('site', $site)) bww_flash('Saved — your website has been updated.', 'ok');
         }
         header('Location: settings.php'); exit;
     }
 
     /* ---------- tracking ---------- */
     if ($action === 'tracking') {
-        $site['ga4_id']        = trim($_POST['ga4_id'] ?? '');
-        $site['gsc_verify']    = trim($_POST['gsc_verify'] ?? '');
-        $site['meta_pixel_id'] = trim($_POST['meta_pixel_id'] ?? '');
-        $site['site_url']      = rtrim(trim($_POST['site_url'] ?? ''), '/');
-        bww_write('site', $site);
-        bww_flash('Saved.', 'ok');
+        $ga  = trim($_POST['ga4_id'] ?? '');
+        $gsc = trim($_POST['gsc_verify'] ?? '');
+        $px  = trim($_POST['meta_pixel_id'] ?? '');
+        $url = rtrim(trim($_POST['site_url'] ?? ''), '/');
+        $errs = [];
+        if ($url !== '' && (!filter_var($url, FILTER_VALIDATE_URL) || !preg_match('#^https?://#i', $url))) $errs[] = 'The website address must start with https:// (for example https://www.freelandwellandwater.com).';
+        if ($ga  !== '' && !preg_match('/^G-[A-Z0-9]{4,20}$/', $ga))      $errs[] = 'The Google Analytics ID should look like G-XXXXXXXXXX.';
+        if ($gsc !== '' && !preg_match('/^[A-Za-z0-9_-]{10,100}$/', $gsc)) $errs[] = 'The Search Console code should be only the code itself (letters, numbers, - and _), not the whole tag.';
+        if ($px  !== '' && !preg_match('/^\d{5,20}$/', $px))              $errs[] = 'The Facebook Pixel ID should be numbers only.';
+        if ($errs) {
+            bww_flash('Nothing was saved:<br>' . implode('<br>', array_map('e', $errs)), 'err');
+        } else {
+            $site['ga4_id']        = $ga;
+            $site['gsc_verify']    = $gsc;
+            $site['meta_pixel_id'] = $px;
+            $site['site_url']      = $url;
+            if (bww_save('site', $site)) bww_flash('Saved.', 'ok');
+        }
         header('Location: settings.php'); exit;
     }
 
@@ -84,8 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $auth['changed'] = date('c');
             $newUser = trim($_POST['username'] ?? '');
             if ($newUser !== '') { $auth['user'] = $newUser; $_SESSION['bww_user'] = $newUser; }
-            bww_write('auth', $auth);
-            bww_flash('Password changed. Keep it somewhere safe.', 'ok');
+            if (bww_save('auth', $auth)) bww_flash('Password changed. Keep it somewhere safe.', 'ok');
         }
         header('Location: settings.php#password'); exit;
     }

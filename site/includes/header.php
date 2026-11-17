@@ -11,8 +11,13 @@ $nav = bww_nav();
 
 // Always serve the latest saved version: browsers re-check every time, and the
 // host's LiteSpeed page cache (if switched on) never keeps an old copy.
-header('Cache-Control: no-cache, must-revalidate, max-age=0');
+// Admin preview pages (unsaved edits) are never stored at all.
+header('Cache-Control: ' . (bww_preview_overlay() ? 'no-store' : 'no-cache, must-revalidate, max-age=0'));
 header('X-LiteSpeed-Cache-Control: no-cache');
+
+// Full address of a site image for Google and social sharing (absolute addresses are kept as they are).
+$absUrl = fn(string $u) => preg_match('#^https?://#i', $u) ? $u : rtrim(s('site_url'), '/') . '/' . $u;
+$ogImage = is_file(dirname(__DIR__) . '/assets/img/og-image.jpg') ? 'assets/img/og-image.jpg' : asset(c('header.logo'), 'img/logo.png');
 ?><!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,7 +31,13 @@ header('X-LiteSpeed-Cache-Control: no-cache');
 <meta property="og:title" content="<?= e($TITLE) ?>">
 <meta property="og:description" content="<?= e($DESC) ?>">
 <meta property="og:url" content="<?= e($CANON) ?>">
-<meta property="og:image" content="<?= e(rtrim(s('site_url'), '/') . '/' . asset(c('header.logo'), 'img/logo.png')) ?>">
+<meta property="og:site_name" content="<?= e(s('business')) ?>">
+<meta property="og:image" content="<?= e($absUrl($ogImage)) ?>">
+<?php if ($ogImage === 'assets/img/og-image.jpg'): ?>
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<?php endif; ?>
+<meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#0b5fa5">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" href="assets/img/favicon-32.png" sizes="32x32">
@@ -44,7 +55,7 @@ header('X-LiteSpeed-Cache-Control: no-cache');
   'name'     => s('business'),
   'slogan'   => c('footer.tagline', s('tagline')),
   'url'      => s('site_url'),
-  'image'    => rtrim(s('site_url'), '/') . '/' . asset(c('header.logo'), 'img/logo.png'),
+  'image'    => $absUrl(asset(c('header.logo'), 'img/logo.png')),
   'telephone'=> s('phone_display'),
   'email'    => s('email'),
   'founder'  => ['@type' => 'Person', 'name' => s('owner')],
@@ -55,7 +66,7 @@ header('X-LiteSpeed-Cache-Control: no-cache');
     '@type' => 'Offer',
     'itemOffered' => ['@type' => 'Service', 'name' => $sv['name'] ?? '', 'description' => $sv['short'] ?? ''],
   ], bww_services()),
-]), JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) ?>
+]), JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | JSON_HEX_TAG | JSON_HEX_AMP) ?>
 </script>
 <?php if (s('ga4_id')): ?>
 <script async src="https://www.googletagmanager.com/gtag/js?id=<?= e(s('ga4_id')) ?>"></script>

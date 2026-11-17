@@ -4,6 +4,11 @@
  * All content lives in flat JSON files under /data. No database required.
  */
 
+// Never show PHP errors to visitors; they go to the server's error log instead.
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+header_remove('X-Powered-By');
+
 define('BWW_ROOT', dirname(__DIR__));
 define('BWW_DATA', BWW_ROOT . '/data');
 define('BWW_UPLOADS', BWW_ROOT . '/assets/uploads');
@@ -16,14 +21,83 @@ function bww_read(string $name, $fallback = []) {
     return is_array($out) ? $out : $fallback;
 }
 
-/** Write a JSON data file atomically. */
+/** Write a JSON data file atomically (each write uses its own temporary file). */
 function bww_write(string $name, array $data): bool {
     $path = BWW_DATA . '/' . basename($name) . '.json';
-    $tmp  = $path . '.tmp';
+    $tmp  = $path . '.' . bin2hex(random_bytes(6)) . '.tmp';
     $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     if ($json === false) return false;
-    if (file_put_contents($tmp, $json, LOCK_EX) === false) return false;
-    return rename($tmp, $path);
+    if (@file_put_contents($tmp, $json, LOCK_EX) === false) { @unlink($tmp); return false; }
+    if (!@rename($tmp, $path)) { @unlink($tmp); return false; }
+    return true;
+}
+
+/*
+ * Per-visitor attempt limits (login, contact form), kept in data/rate-limits.json
+ * so clearing cookies does not reset them. Visitors are stored as a short hash,
+ * never as a raw IP address.
+ */
+function bww_rate_key(string $bucket): string {
+    return $bucket . ':' . substr(hash('sha256', ($_SERVER['REMOTE_ADDR'] ?? '') . '|bww'), 0, 20);
+}
+
+/**
+ * Run $fn(&$records, $now) on the stored records under a file lock, then save them.
+ * Returns false if the lock could not be taken or the records could not be saved.
+ */
+function bww_rate_update(callable $fn): bool {
+    $lock = @fopen(BWW_DATA . '/rate-limits.lock', 'c');
+    if (!$lock || !flock($lock, LOCK_EX)) {
+        if ($lock) fclose($lock);
+        error_log('Rate limits: could not lock data/rate-limits.lock');
+        return false;
+    }
+    try {
+        $all = bww_read('rate-limits', []);
+        $now = time();
+        foreach ($all as $k => $r) {   // forget anything older than a day
+            if (max((int)($r['start'] ?? 0), (int)($r['until'] ?? 0)) < $now - 86400) unset($all[$k]);
+        }
+        $fn($all, $now);
+        $ok = bww_write('rate-limits', $all);
+    } finally {
+        flock($lock, LOCK_UN);
+        fclose($lock);
+    }
+    if (!$ok) error_log('Rate limits: could not save data/rate-limits.json');
+    return $ok;
+}
+
+/** Seconds this visitor must still wait for $bucket (0 = not blocked). */
+function bww_rate_blocked(string $bucket): int {
+    $r = bww_read('rate-limits', [])[bww_rate_key($bucket)] ?? [];
+    return max(0, (int)($r['until'] ?? 0) - time());
+}
+
+/**
+ * Claim one attempt before doing it, in a single locked step so attempts sent at
+ * the same moment cannot all slip through. After $max attempts within $window
+ * seconds the visitor is blocked for $lockSecs. Returns false when blocked, or
+ * when the limit cannot be checked (then the attempt is refused, not allowed).
+ */
+function bww_rate_take(string $bucket, int $max, int $window, int $lockSecs): bool {
+    $key = bww_rate_key($bucket);
+    $allowed = false;
+    $saved = bww_rate_update(function (array &$all, int $now) use ($key, $max, $window, $lockSecs, &$allowed) {
+        $r = $all[$key] ?? [];
+        if ((int)($r['until'] ?? 0) > $now) return;   // still blocked
+        if ($now - (int)($r['start'] ?? 0) > $window) $r = ['n' => 0, 'start' => $now, 'until' => 0];
+        $r['n'] = (int)$r['n'] + 1;
+        if ($r['n'] >= $max) $r = ['n' => 0, 'start' => $now, 'until' => $now + $lockSecs];
+        $all[$key] = $r;
+        $allowed = true;
+    });
+    return $saved && $allowed;
+}
+
+function bww_rate_clear(string $bucket): void {
+    $key = bww_rate_key($bucket);
+    bww_rate_update(function (array &$all) use ($key) { unset($all[$key]); });
 }
 
 function bww_site(): array     { static $x = null; if ($x === null) $x = bww_read('site', []);     return $x; }
@@ -200,6 +274,21 @@ function bww_card_img(string $url, int $w, int $h): string {
 function img_size(string $url): string {
     $s = $url !== '' && !preg_match('#^https?://#i', $url) ? @getimagesize(BWW_ROOT . '/' . $url) : false;
     return $s ? ' width="' . $s[0] . '" height="' . $s[1] . '"' : '';
+}
+
+/**
+ * A photo inside a page section: phones get the smaller copy, wide screens the
+ * full one, with its size and a description for screen readers and Google.
+ */
+function bww_content_img(string $url, string $alt, bool $lazy = true): string {
+    $sm   = asset_sm($url);
+    $full = @getimagesize(BWW_ROOT . '/' . $url);
+    $out  = '<img src="' . e($sm) . '"';
+    if ($sm !== $url && $full && ($small = @getimagesize(BWW_ROOT . '/' . $sm))) {
+        $out .= ' srcset="' . e($sm) . ' ' . $small[0] . 'w, ' . e($url) . ' ' . $full[0] . 'w" sizes="(max-width: 900px) 100vw, 560px"';
+    }
+    if ($full) $out .= ' width="' . $full[0] . '" height="' . $full[1] . '"';
+    return $out . ' alt="' . e($alt) . '" style="border-radius:10px"' . ($lazy ? ' loading="lazy"' : '') . '>';
 }
 
 /**

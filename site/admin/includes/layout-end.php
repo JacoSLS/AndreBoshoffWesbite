@@ -38,8 +38,12 @@ document.addEventListener('click', function (e) {
     var lastG = hostG.querySelector('.repeat-group:last-child');
     if (!lastG) return;
     var copyG = lastG.cloneNode(true);
-    // renumber so the new block does not overwrite the one it was copied from
-    var next = hostG.querySelectorAll('.repeat-group').length;
+    // give the new block a number no other block uses, so it never overwrites one
+    var next = 0;
+    hostG.querySelectorAll('.repeat-group [name]').forEach(function (i) {
+      var m = i.name.match(/\[(\d+)\]/);
+      if (m) next = Math.max(next, +m[1] + 1);
+    });
     copyG.querySelectorAll('input, textarea, select').forEach(function (i) {
       if (i.name) i.name = i.name.replace(/\[(\d+)\]/, '[' + next + ']');
       if (i.tagName === 'SELECT') i.selectedIndex = 0; else i.value = '';
@@ -53,9 +57,11 @@ document.addEventListener('click', function (e) {
   if (rm) {
     var row = rm.closest('.repeat-row, .repeat-group');
     if (!row) return;
-    var parent = row.parentElement;
+    var parent = row.parentElement, form = row.closest('form');
     if (parent.children.length > 1) row.remove();
     else row.querySelectorAll('input, textarea').forEach(function (i) { i.value = ''; });
+    // count it as an unsaved change, so leaving the page still warns
+    if (form) form.dispatchEvent(new Event('change', { bubbles: true }));
   }
 });
 

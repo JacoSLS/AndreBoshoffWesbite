@@ -25,7 +25,7 @@ require __DIR__ . '/includes/header.php';
         <?= bww_rich(c('about.story.body')) ?>
       </div>
       <?php if (asset(c('about.story.image'))): ?>
-      <div><img src="<?= e(asset(c('about.story.image'))) ?>"<?= img_size(asset(c('about.story.image'))) ?> alt="" style="border-radius:10px"></div>
+      <div><?= bww_content_img(asset(c('about.story.image')), c('about.story.image_alt') ?: c('about.story.heading'), false) ?></div>
       <?php endif; ?>
     </div>
   </div>
@@ -57,7 +57,7 @@ require __DIR__ . '/includes/header.php';
   <div class="wrap">
     <div class="split">
       <?php if (asset(c('about.who.image'))): ?>
-      <div><img src="<?= e(asset(c('about.who.image'))) ?>"<?= img_size(asset(c('about.who.image'))) ?> alt="" style="border-radius:10px" loading="lazy"></div>
+      <div><?= bww_content_img(asset(c('about.who.image')), c('about.who.image_alt') ?: c('about.who.heading')) ?></div>
       <?php endif; ?>
       <div>
         <?php if (c('about.who.eyebrow')): ?><span class="eyebrow"><?= e(c('about.who.eyebrow')) ?></span><?php endif; ?>

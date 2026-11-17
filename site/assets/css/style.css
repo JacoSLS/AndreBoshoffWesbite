@@ -440,6 +440,7 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 2.5rem 0; }
   padding: 3rem 1.5rem; text-align: center; color: var(--muted); background: var(--soft);
 }
 .empty-state h3 { color: var(--ink); }
+.gallery-empty { text-align: center; color: var(--muted); max-width: 52ch; margin: 1rem auto; }
 
 /* ---------- contact ---------- */
 .contact-grid--single { grid-template-columns: 1fr !important; max-width: 640px; }
