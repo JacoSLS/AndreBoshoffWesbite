@@ -1,10 +1,12 @@
 FREELAND WELL AND WATER SERVICES - WEBSITE VERSIONS
 ====================================================
-Every version folder holds ONE zip with the COMPLETE website.
+Every version folder holds the website zip plus its notes (README.md,
+DEPLOY-FIRST.txt, this CHANGELOG). Only the zip is ever uploaded.
+The code also lives on GitHub: JacoSLS/AndreBoshoffWesbite (branch main).
 Newest version at the top.
 
-LIVE ON freelandwellandwater.com:  nothing yet
-READY TO DEPLOY:                   v1.7  (fresh install - see B below)
+LIVE ON freelandwellandwater.com:  v1.7  (installed 15 Nov 2026)
+READY TO DEPLOY:                   v1.8  (update - see A below)
 
 The old site on boshoffwellandwater.com was closed on 27 Oct 2026
 (business name changed). v1.0 - v1.5.1 are kept here for the record only.
@@ -12,21 +14,84 @@ The old site on boshoffwellandwater.com was closed on 27 Oct 2026
 
 HOW TO DEPLOY A VERSION
 -----------------------
-A) UPDATING THE LIVE SITE  (the normal case)
-   1. Unzip the version on your PC first.
-   2. DELETE the "data" folder and the ".htaccess" file from what you unzipped.
-        - data      holds Andre's wording, services, gallery and reviews as he
-                    has edited them in the admin. Uploading it wipes his edits.
-        - .htaccess the live copy has the https/www lines switched on and cPanel
-                    may have added its own lines. Make the listed hand edits
-                    instead (see HTACCESS-CHANGES.txt in the version folder).
-   3. Zip the rest again, upload to public_html, Extract, overwrite, delete the zip.
+A) UPDATING THE LIVE SITE  (the normal case, from v1.8 on)
+   The zip is an UPDATE zip: it has no "data" folder and no uploaded photos,
+   so it cannot overwrite Andre's wording, services, gallery, reviews or
+   photos. Upload it as it is: cPanel > File Manager > public_html >
+   Upload > Extract (overwrite) > delete the zip.
+   Extracting never deletes files: the version notes below list any old
+   files to delete by hand, and any wording to type in the admin.
 
 B) FRESH INSTALL  (new host, or rebuilding from scratch)
-   Upload the whole zip unchanged to public_html and follow DEPLOY-FIRST.txt
-   inside it.
+   Take the full site from GitHub (folder site/, which includes data/) and
+   follow DEPLOY-FIRST.txt.
 
-Never upload a zip that is not in this folder.
+Never upload a zip that is not in this folder. Never upload README.md,
+DEPLOY-FIRST.txt or CHANGELOG.txt to the server.
+
+
+v1.8  -  17 November 2026  -  Security and quality
+--------------------------------------------------
+Security
+ - Login: the "too many attempts" lock (6 tries, then 15 minutes) is now
+   kept on the server, so clearing cookies no longer resets it. A locked-out
+   visitor sees why. There is no built-in password any more (a fresh
+   install shows a one-time setup screen, see DEPLOY-FIRST.txt).
+ - Sign out is a button (another website can no longer sign Andre out).
+ - Notes and settings files (.md, .txt, .ini, .zip ...) can no longer be
+   downloaded from the site. Extra security headers (HSTS, CSP); the PHP
+   version is no longer shown; PHP errors are never shown to visitors.
+ - Contact form: length limits, at most 5 messages an hour per visitor,
+   a plain "please call us" message if sending fails (detail goes to the
+   server log). It now sends from andre@freelandwellandwater.com. Any SMTP
+   password goes in includes/mail-local.php on the server, never in a file
+   in the zip.
+ - Text typed in the admin can no longer break the page's code; settings
+   (Google IDs, website address, Facebook link) are checked before saving.
+Fixed
+ - The admin says so when a save fails, instead of "Saved".
+ - Replacing or removing a photo deletes the old one only after the save
+   worked. Two saves at the same moment can no longer undo each other.
+ - Adding a review (or any list block) after removing one no longer
+   overwrites another one.
+ - Gallery: correct cover photo after deleting photos; jobs with no photos
+   are hidden; photos rotate only once the next one has loaded; keyboard
+   users stay inside the job viewer.
+ - Service "Details" links never point to a hidden section.
+Changed
+ - About and Home photos load a smaller copy on phones and have a
+   description for screen readers and Google (new "What the photo shows"
+   box under each photo in the admin).
+ - New sharing picture (og-image.jpg, made from the 17 Nov banner) for
+   Facebook, WhatsApp and text messages.
+ - An empty gallery shows a short note instead of placeholder jobs.
+ - Old admin "services.php" now just forwards to the Services editor.
+ - 13 unused images removed, including hero.jpg with the old name.
+Tested
+ - 58 automated checks on a local copy (login, lockout, setup screen,
+   sign out, saves, photos, settings, contact form, blocked files,
+   headers) plus gallery and admin checks in a browser. Reviewed twice by
+   CodeRabbit; all findings fixed.
+ - Not tested locally: a real email (do step 4 below) and Google PageSpeed
+   (do step 5 below).
+Deploying (update A - upload the zip as it is, nothing to delete first)
+ 1. Upload freeland-website-v1.8.zip to public_html, Extract, overwrite,
+    delete the zip. It includes the new .htaccess.
+ 2. Delete these old files in public_html/assets/img:
+      about-1.jpg  about-2.jpg  home-1.jpg  hero.jpg  logo-mark.png
+      ph-1.svg  ph-2.svg  ph-3.svg  ph-4.svg  ph-5.svg  ph-6.svg
+      ph-hero.svg  ph-team.svg
+ 3. In the admin, paste these (Google descriptions + one typo):
+      Home > Page title for Google > Description for search results:
+        Owner-operated well pump, water testing, water treatment and plumbing services in Baltimore, Harford and Carroll Counties, Maryland. 24/7 emergency service.
+      About Us > Description for search results:
+        A family-owned, owner-operated well, plumbing and gas fitting business in Freeland, Maryland. 24/7 emergency service with no extra emergency fees.
+      Reviews > Description for search results:
+        What customers across Baltimore, Harford and Carroll Counties say about Freeland Well and Water Services' well, water and plumbing work.
+      Home > The "where we work" section: change "MD an PA" to "MD and PA".
+ 4. Send one real test enquiry from the contact page.
+ 5. Check https://www.freelandwellandwater.com/README.md shows 403, then
+    run pagespeed.web.dev on the home, gallery and services pages.
 
 
 v1.7  -  15 November 2026  -  Blurred old name in photos
