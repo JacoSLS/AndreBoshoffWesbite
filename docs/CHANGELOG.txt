@@ -1,0 +1,201 @@
+FREELAND WELL AND WATER SERVICES - WEBSITE VERSIONS
+====================================================
+Every version folder holds ONE zip with the COMPLETE website.
+Newest version at the top.
+
+LIVE ON freelandwellandwater.com:  nothing yet
+READY TO DEPLOY:                   v1.7  (fresh install - see B below)
+
+The old site on boshoffwellandwater.com was closed on 27 Oct 2026
+(business name changed). v1.0 - v1.5.1 are kept here for the record only.
+
+
+HOW TO DEPLOY A VERSION
+-----------------------
+A) UPDATING THE LIVE SITE  (the normal case)
+   1. Unzip the version on your PC first.
+   2. DELETE the "data" folder and the ".htaccess" file from what you unzipped.
+        - data      holds Andre's wording, services, gallery and reviews as he
+                    has edited them in the admin. Uploading it wipes his edits.
+        - .htaccess the live copy has the https/www lines switched on and cPanel
+                    may have added its own lines. Make the listed hand edits
+                    instead (see HTACCESS-CHANGES.txt in the version folder).
+   3. Zip the rest again, upload to public_html, Extract, overwrite, delete the zip.
+
+B) FRESH INSTALL  (new host, or rebuilding from scratch)
+   Upload the whole zip unchanged to public_html and follow DEPLOY-FIRST.txt
+   inside it.
+
+Never upload a zip that is not in this folder.
+
+
+v1.7  -  15 November 2026  -  Blurred old name in photos
+---------------------------------------------------------
+Changed
+ - The old business name is blurred in 7 of Andre's photos: two gallery
+   truck photos (door lettering), four tank photos (sticker - two in the
+   gallery, two on the Services page) and the Yield Test Report on the
+   Services page (logo). Only the name is blurred; phone numbers and the
+   rest of each photo are unchanged. Their smaller copies were remade.
+ - New photos uploaded later are never blurred. Replacing or deleting a
+   blurred photo in the admin removes it and its copies from the server.
+ - Nothing else changed from v1.6 (same code, wording and settings).
+Not changed
+ - assets/img/hero.jpg (old default photo, truck with the old name) is
+   still in the files but is not shown on any page.
+Deploying
+ - Same as v1.6: FRESH INSTALL (B below), whole zip incl. data folder.
+Tested
+ - Every page, link and admin tab on PC and phone (same result as v1.6).
+
+
+v1.6  -  15 November 2026  -  New name and domain
+-------------------------------------------------
+Changed
+ - Business name is now Freeland Well and Water Services everywhere: page
+   titles, Google descriptions, page text, footer, emails from the contact
+   form, admin hints and the setup notes.
+ - Domain is now www.freelandwellandwater.com: site address, sitemap,
+   robots.txt, Google sharing links and the https/www redirect in .htaccess.
+ - Contact email and contact form recipient: andre@freelandwellandwater.com
+ - New logo (header, white footer logo, staff login), new favicon and the
+   new cover image on the home page.
+ - "Andre Boshoff" kept as the owner's personal name (About page, owner).
+ - Old Search Console code removed (it belonged to the old domain).
+ - Built from the live backup (v1.5.1) so Andre's wording, services,
+   gallery and reviews are all included. No code changes otherwise.
+Not changed (on purpose)
+ - Andre's photos. A few still show the old name (truck door, tank stickers,
+   yield test report). He will replace them through the admin.
+Deploying
+ - FRESH INSTALL (B below). Upload the whole zip, data folder included.
+ - The https/www lines in .htaccess are already on, with the AutoSSL
+   folder (/.well-known/) left alone. No hand edits needed.
+ - Create the mailbox andre@freelandwellandwater.com in cPanel first.
+ - Login: andre and the starting password (not written here)
+Tested
+ - Every page, link, form and admin tab on PC and phone; Lighthouse home
+   page on phone 99 / 100 / 100 / 100.
+
+
+v1.5.1  -  27 October 2026  -  Live site backup (made by Jaco)
+-------------------------------------------------------------
+ - Download of the live site before it was closed. Source for v1.6.
+
+
+v1.5  -  23 October 2026  -  Photo sizes on Services and Gallery
+------------------------------------------------------------------
+Fixed
+ - Services and Gallery were slow on phones because the cards showed Andre's
+   full-size photos (up to 1600 x 3463 pixels, 3.2 MB on the Services page).
+   Each card now uses a copy cut to the card's exact shape - the same part of
+   the photo as before, about a tenth of the size. The copies are made by the
+   site the first time a page needs them, so nothing has to be re-uploaded.
+ - The Services detail list uses the smaller copy of each photo.
+ - Deleting a photo in the admin also removes its card copies.
+Tested
+ - With tall phone photos on every service and gallery job: Services and
+   Gallery phone 97-98, desktop 100 (accessibility, best practices and SEO 100).
+Deploying over v1.4
+ - Upload as usual (without the data folder and .htaccess). Nothing else.
+Live check (Google PageSpeed Insights, 23 Oct 2026, phone / desktop)
+ - Every page 99-100 performance, 100 accessibility, best practices and SEO.
+
+
+v1.4  -  23 October 2026  -  Page speed, Google visibility
+-----------------------------------------------------------
+Changed
+ - Pages load much faster, especially on phones: smaller logo files, a phone
+   sized banner, the Montserrat font served from the site itself (no Google
+   request), image sizes set so the page no longer jumps while loading, and
+   browsers now keep the font, stylesheet and script between pages.
+ - Gallery: only the first photo of each job loads with the page; the others
+   load just before they rotate in.
+ - Grey body text a touch darker (passes Google's contrast check); smallest
+   text on phones raised to 12px; heading order and the Gallery "View job"
+   button fixed for screen readers.
+Removed
+ - The "Hide this site from Google" switch in Admin > Settings. The site is
+   always open to Google (the 404 page stays hidden).
+Tested
+ - Google Lighthouse on every page: phone 95-100, desktop 100 for performance,
+   accessibility, best practices and SEO.
+Deploying over v1.2 also needs
+ - The .htaccess hand edits in HTACCESS-CHANGES.txt (still not done on live).
+ - Nothing else.
+
+
+v1.3  -  18 October 2026  -  Services section, live preview, save fixes
+------------------------------------------------------------------------
+New
+ - Home page: the "What we do" section is now the service cards from the
+   Services page (no photos): icon, heading, short write-up and a Details link
+   that opens that card on the Services page. Heading "Our services" comes from
+   the Services page title. Wording is edited under Admin > Services only.
+ - Admin > Home: services section on/off, card icons on/off, and which comes
+   first - the services section or "Why homeowners call us back".
+ - Reviews: long reviews are shortened with "..." and open in full when tapped.
+   The length is set in Admin > Reviews (default 30 characters, 0 = full).
+ - Live preview button is now in the admin top bar on every tab. It stays open
+   (or closed) when moving between tabs and shows that tab's page. Services now
+   previews as you type too.
+Changed
+ - Home page strip under the banner: the Read more buttons are removed, the
+   blocks are plain cards again.
+Fixed
+ - Saves that silently failed: the sign-in session is now kept inside the site
+   so the host cannot clear it mid-edit; a photo that is too big is stopped
+   with a clear message (it used to say "session timed out" and lose the edit);
+   a warning appears before leaving a page with unsaved changes.
+ - Pages after saving: the site tells browsers and the host's cache to always
+   load the newest version.
+Deploying over v1.2 also needs
+ - The .htaccess hand edits in HTACCESS-CHANGES.txt, if not done yet for v1.2.
+ - Nothing else. (Over v1.1: also rename data/auth.json to auth-old.json, then
+   log in with andre and the starting password (not written here) and delete auth-old.json once it works.)
+
+
+v1.2  -  18 October 2026  -  Reviews, mobile, SEO
+-------------------------------------------------
+New
+ - Reviews page (/reviews) with admin tab. Green bordered cards. Side by side
+   on PC (or a list - choice in admin), always a list on phones. The page stays
+   out of the menu until the first review is added.
+ - Live preview pane in the admin (Home, About Us, Contact, Reviews): shows
+   unsaved changes as you type, Desktop / Phone switch. Laptop and PC only.
+ - Admin burger menu on phones.
+ - Show / hide password eye on the staff login.
+Changed
+ - Home page strip under the banner: compact blocks with a blue Read more
+   button. Where each button goes is picked in admin.
+ - Whole site resized for phones (about 15% smaller, logo 25% smaller,
+   banner unchanged). PC layout unchanged.
+ - Built-in login: andre and the starting password (not written here) . Minimum password length now 8.
+Fixed
+ - CONTACT FORM: in v1.1 it sends to contact.php, the site redirects that to
+   /contact and the message is lost. Now sends to /contact.
+ - Made-up deeper addresses (e.g. /services/abc/xyz) gave a 500 error. Now the
+   404 page. Also /about/ and /index.php now redirect to one clean address.
+ - Uploads folder protection now actually works (new assets/uploads/.htaccess).
+ - All internal links go straight to clean addresses (no redirect hop).
+ - Home page now has a main heading for Google (editable, not shown on screen).
+ - favicon.ico added. Reviews page has a default Google description.
+ - robots.txt no longer calls the site a "demo copy".
+Deploying over v1.1 also needs
+ - The .htaccess hand edits in HTACCESS-CHANGES.txt.
+ - Rename data/auth.json to auth-old.json, then log in with andre and the starting password (not written here)
+   (this is what switches the password).
+
+
+v1.1  -  4 October 2026  -  Banner
+----------------------------------
+ - The blue top section of the home page replaced by the full-width banner
+   picture. Banner editable in admin, optional separate phone picture.
+ - Stylesheet carries a version number so browsers never show an old copy.
+
+
+v1.0  -  14 September 2026  -  First live site
+----------------------------------------------
+ - The original site as first uploaded to Namecheap: Home, About Us,
+   Services, Gallery, Contact, Privacy Policy, Terms, staff admin.
+ - Built-in login in this version: andre and the starting password (not written here)

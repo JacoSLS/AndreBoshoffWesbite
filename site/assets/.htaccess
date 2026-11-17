@@ -1,0 +1,13 @@
+# Let browsers keep the font, stylesheet and script between pages.
+# The site adds a version number to the stylesheet and script addresses,
+# so visitors still get the new copy straight after an update.
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType font/woff2 "access plus 1 year"
+  ExpiresByType text/css "access plus 1 month"
+  ExpiresByType text/javascript "access plus 1 month"
+  ExpiresByType application/javascript "access plus 1 month"
+</IfModule>
+<IfModule mod_mime.c>
+  AddType font/woff2 .woff2
+</IfModule>
