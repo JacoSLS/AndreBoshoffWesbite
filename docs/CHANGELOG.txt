@@ -6,7 +6,7 @@ The code also lives on GitHub: JacoSLS/AndreBoshoffWesbite (branch main).
 Newest version at the top.
 
 LIVE ON freelandwellandwater.com:  v1.7  (installed 15 Nov 2026)
-READY TO DEPLOY:                   v1.8  (update - see A below)
+READY TO DEPLOY:                   v1.8.1  (update - see A below; replaces v1.8)
 
 The old site on boshoffwellandwater.com was closed on 27 Oct 2026
 (business name changed). v1.0 - v1.5.1 are kept here for the record only.
@@ -30,7 +30,29 @@ Never upload a zip that is not in this folder. Never upload README.md,
 DEPLOY-FIRST.txt or CHANGELOG.txt to the server.
 
 
-v1.8  -  17 November 2026  -  Security and quality
+v1.8.1  -  19 November 2026  -  Reviews heading
+-----------------------------------------------
+Everything in v1.8 below, plus:
+Fixed
+ - Reviews page: a hidden "Customer reviews" heading so the headings run in
+   order (screen readers and Google's Lighthouse check). Looks the same.
+Tested
+ - v1.8.1 installed the way the live update will go (v1.7 site with
+   Andre's content, then the update zip extracted over it): all 20 pages
+   and 115 links and images work; every public button and every admin
+   button (all Save buttons, move up/down, add/delete service and gallery
+   job, logo upload/remove, password change, live preview, sign out) at
+   phone and desktop width; a real contact form email caught by a local
+   test mail server; structured data 0 errors / 0 warnings in Google's
+   Schema Markup Validator.
+ - The one-line change was merged before CodeRabbit finished its review.
+Deploying
+ - Upload freeland-website-v1.8.1.zip INSTEAD of v1.8, then follow the
+   v1.8 steps 2 to 5 below.
+ - Optional (shorter Google title): Home > Page title for Google >
+   Page title:  Well Pumps & Water Treatment in Maryland
+
+v1.8  -  17 November 2026  -  Security and quality  (not deployed: use v1.8.1)
 --------------------------------------------------
 Security
  - Login: the "too many attempts" lock (6 tries, then 15 minutes) is now
