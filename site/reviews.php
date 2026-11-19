@@ -24,6 +24,7 @@ $eyebrow = c('reviews_page.hero.eyebrow') ?: 'Customer Testimonials';
 <?php if ($reviews): ?>
 <section class="section">
   <div class="wrap">
+    <h2 class="sr-only">Customer reviews</h2>
     <div class="reviews<?= c('reviews_page.layout') === 'list' ? ' reviews--list' : '' ?>">
       <?php foreach ($reviews as $r):
         $q = trim($r['quote']);
